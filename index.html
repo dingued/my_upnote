@@ -79,11 +79,11 @@
 
     <!-- Right: 2 Primary High-Frequency Actions (Compact on Mobile Portrait) -->
     <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
-      <button id="btn-header-snap" onclick="openHandwritingSnapModal()" class="px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/70 flex items-center gap-1 transition-all shrink-0" title="手机拍照或从相册选图转文字">
+      <button id="btn-header-snap" onclick="openHandwritingSnapModal()" class="px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/70 flex items-center gap-1 transition-all shrink-0" title="手机拍照或从相册选图转文字（含自动压缩加速）">
         <i data-lucide="camera" class="w-3.5 h-3.5 text-indigo-600"></i>
         <span>拍手写</span>
       </button>
-      <button id="btn-reclassify-current" onclick="autoClassifyAndSummarizeCurrentNote()" class="px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-2xs flex items-center gap-1 transition-all shrink-0" title="一键对当前笔记自动分类、生成摘要并提取待办">
+      <button id="btn-reclassify-current" onclick="autoClassifyAndSummarizeCurrentNote()" class="px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-2xs flex items-center gap-1 transition-all shrink-0" title="一键对当前笔记自动分类、生成摘要并提取绝对日期的待办">
         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
         <span>AI 整理</span>
       </button>
@@ -160,7 +160,7 @@
           <input id="note-title-input" oninput="handleNoteEdit()" type="text" placeholder="输入笔记标题..." class="text-base sm:text-xl font-bold text-slate-900 bg-transparent focus:outline-none flex-1 min-w-0 w-full" />
         </div>
 
-        <!-- Row 2 on Mobile: Mobile Category + Edit/Preview Toggle + Star & Delete (All visible in portrait!) -->
+        <!-- Row 2 on Mobile: Mobile Category + Edit/Preview Toggle + Star & Delete -->
         <div class="flex items-center justify-between sm:justify-end gap-1.5 w-full sm:w-auto shrink-0">
           <select id="note-category-select-mobile" onchange="handleCategoryChange(this.value)" class="sm:hidden text-xs font-semibold px-2 py-1 rounded-md border border-slate-200 bg-slate-50 text-slate-700 focus:outline-none">
             <option value="客户情报类">💼 客户情报</option>
@@ -205,14 +205,14 @@
         </div>
       </div>
 
-      <!-- Wrapping Markdown Formatting Bar (Wraps cleanly on Portrait Phone — no horizontal rotation needed!) -->
+      <!-- Wrapping Markdown Formatting Bar -->
       <div id="md-toolbar" class="px-3 sm:px-8 py-1.5 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-y-1 gap-x-2 shrink-0">
         <div class="flex flex-wrap items-center gap-1 text-xs text-slate-700">
           <button type="button" onclick="insertMdSyntax('## ', '')" class="px-2 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70 font-bold" title="二级标题">H2</button>
           <button type="button" onclick="insertMdSyntax('### ', '')" class="px-2 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70 font-semibold" title="三级标题">H3</button>
           <button type="button" onclick="insertMdSyntax('**', '**')" class="px-2 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70 font-bold" title="加粗">B</button>
           <button type="button" onclick="insertMdSyntax('- ', '')" class="px-2 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70" title="列表">• 列表</button>
-          <button type="button" onclick="insertMdSyntax('- [ ] ', '')" class="px-2 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70 text-emerald-700 font-medium" title="待办勾选框">☑ 待办</button>
+          <button type="button" onclick="insertMdSyntax('- [ ] ', '')" class="px-2 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70 text-emerald-700 font-medium" title="待办勾选框（与待办清单双向同步）">☑ 待办</button>
           <button type="button" onclick="insertMdSyntax('> ', '')" class="px-2 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70" title="引用">❝ 引用</button>
           <button type="button" onclick="insertMdSyntax('`', '`')" class="px-1.5 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70 font-mono" title="代码">&lt;/&gt;</button>
           <!-- Inline Tag Input -->
@@ -231,7 +231,7 @@
         <textarea
           id="note-content-input"
           oninput="handleNoteEdit()"
-          placeholder="在这里直接输入笔记（支持 # 标题、**粗体**、- 列表、- [ ] 待办框等 Markdown 语法），或者点右上角「拍手写」拍照/选相册图片导入..."
+          placeholder="在这里直接输入笔记（支持 # 标题、**粗体**、- 列表、- [ ] 待办框等 Markdown 语法，且勾选框与【待办清单】双向实时联动），或者点右上角「拍手写」导入..."
           class="w-full h-full flex-1 resize-none border-0 px-3.5 sm:px-8 py-4 sm:py-5 focus:outline-none text-base sm:text-[17px] text-slate-800 leading-7 sm:leading-8 custom-scroll bg-white font-normal"
         ></textarea>
 
@@ -242,13 +242,13 @@
       </div>
     </main>
 
-    <!-- VIEW 2: DEDICATED TODO LIST CENTER (我的待办清单) -->
+    <!-- VIEW 2: DEDICATED TODO LIST CENTER (我的待办清单 — 支持绝对日期排序与原笔记勾选框双向同步) -->
     <section id="view-todos" class="hidden flex-1 overflow-y-auto custom-scroll p-3 sm:p-6 bg-slate-50 w-full">
       <div class="max-w-3xl mx-auto space-y-3 sm:space-y-4">
         <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between gap-3">
           <div>
             <h2 class="text-base sm:text-lg font-bold text-slate-900">✅ 我的待办清单 (<span id="todo-pending-count-title">0</span>)</h2>
-            <p class="text-xs text-slate-500 mt-0.5">手写拍照或笔记里识别出的待办会自动汇入此处，点击「🔗 原笔记」可跳回出处。</p>
+            <p class="text-xs text-slate-500 mt-0.5">已升级「YYYY-MM-DD 绝对日期换算」与「原笔记 Markdown `[ ]` 双向勾选同步」。</p>
           </div>
           <button id="btn-clear-completed-todos" onclick="clearCompletedTodos()" class="text-xs text-slate-500 hover:text-rose-600 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 shrink-0">
             清理已完成
@@ -263,7 +263,7 @@
             <option value="medium" selected>⚡ 普通</option>
             <option value="low">🌱 低优</option>
           </select>
-          <input id="full-todo-due" type="text" placeholder="期限 (如: 周五)" class="w-24 sm:w-28 text-xs px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl" />
+          <input id="full-todo-due" type="text" placeholder="期限 (如: 明早10点/周五)" class="w-32 sm:w-36 text-xs px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl" />
           <button id="btn-full-add-todo" onclick="addManualTodo('full-todo-input')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl">
             + 添加
           </button>
@@ -275,19 +275,19 @@
       </div>
     </section>
 
-    <!-- VIEW 3: CONSOLIDATED SETTINGS, BACKUP & DRIVE TWO-WAY SYNC -->
+    <!-- VIEW 3: CONSOLIDATED SETTINGS, BACKUP, GAS PERMANENT BRIDGE & DRIVE SYNC -->
     <section id="view-sync" class="hidden flex-1 overflow-y-auto custom-scroll p-3 sm:p-6 bg-slate-50 w-full">
       <div class="max-w-4xl mx-auto space-y-4 sm:space-y-5">
 
-        <!-- One-Click Download Source File Banner -->
+        <!-- One-Click Pristine Source File Download Banner -->
         <div class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white p-4 sm:p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 class="text-sm sm:text-base font-bold flex items-center gap-2">
               <i data-lucide="rocket" class="w-4 h-4"></i>
-              设备部署包下载（单文件 index.html — 含双向同步与手机竖屏/相册修复）
+              设备部署包下载（纯净源码版 index.html — 无 DOM 状态污染）
             </h2>
             <p class="text-xs text-indigo-100 mt-0.5">
-              点击右侧按钮即可下载最新版 <code class="bg-white/20 px-1.5 py-0.5 rounded">index.html</code>，上传覆盖到 GitHub 仓库即可更新手机和电脑端。
+              已修复 `outerHTML` 污染问题：点击右侧按钮会自动剥离运行时状态并还原纯净 `<code class="bg-white/20 px-1 rounded">data-lucide</code>` 源码。
             </p>
           </div>
           <button id="btn-download-app-html" onclick="downloadSelfHtmlFile()" class="shrink-0 px-4 py-2.5 bg-white text-indigo-700 hover:bg-indigo-50 text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-1.5">
@@ -296,13 +296,13 @@
           </button>
         </div>
 
-        <!-- Card 1: API Key, Local Storage Security Notice & Hard Drive Backup -->
+        <!-- Card 1: API Key, GAS Permanent Bridge (No 1-hour OAuth expiry!) & Hard Drive Backup -->
         <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div>
-              <h2 class="text-base font-bold text-slate-900">🔑 1. 核心连接与本地安全存储</h2>
+              <h2 class="text-base font-bold text-slate-900">🔑 1. 核心连接与免弹窗永久同步配置</h2>
               <p class="text-xs text-emerald-700 font-medium mt-0.5">
-                🛡️ 隐私承诺：你填写的 API Key 与 Client ID <strong>100% 仅保存在当前设备浏览器的本地存储 (localStorage)</strong>，绝不会上传到 GitHub 或网盘公开文件。
+                🛡️ 隐私承诺：你填写的密钥 <strong>100% 仅保存在本机浏览器 (localStorage)</strong>，绝不会上传到 GitHub 或公开网络。
               </p>
             </div>
             <button id="btn-export-single-md" onclick="exportCurrentNoteMarkdown()" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 border border-slate-200">
@@ -324,8 +324,23 @@
                   <option value="gemini-3.8-flash">🧠 Gemini 3.8 Flash (复杂深度推理)</option>
                 </select>
               </div>
+
+              <!-- NEW: Google Apps Script (GAS) Web App Bridge to eliminate 1-hour OAuth token expiry! -->
+              <div class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="font-bold text-emerald-900">🚀 方案 A (强烈推荐)：GAS 免过期永久同步 URL</label>
+                  <button type="button" onclick="copyGasBridgeScript()" class="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[11px] font-semibold">
+                    📋 复制 GAS 服务端代码
+                  </button>
+                </div>
+                <input id="input-gas-url" type="url" placeholder="https://script.google.com/macros/s/xxx/exec (填此项彻底告别1小时授权弹窗)" class="w-full px-2.5 py-1.5 bg-white border border-emerald-300 rounded-lg font-mono text-[11px] focus:outline-none focus:border-emerald-600" />
+                <p class="text-[11px] text-emerald-800 leading-relaxed">
+                  填入你部署在 <code class="bg-white px-1 rounded">script.google.com</code> 的 Web App 网址后，手机和电脑将通过你的私人 GAS 脚本永久读写 Google Drive，<strong>永远不再受 1 小时 OAuth Token 过期限制</strong>！
+                </p>
+              </div>
+
               <div>
-                <label class="font-bold text-slate-700 block mb-1">Google OAuth Client ID (永久保存在本机，点右侧一键登录/续期)</label>
+                <label class="font-bold text-slate-700 block mb-1">方案 B：Google OAuth Client ID (传统前端直连，1小时需点一次续期)</label>
                 <div class="flex gap-1.5">
                   <input id="input-google-client-id" type="text" placeholder="xxxx.apps.googleusercontent.com" class="flex-1 min-w-0 px-3 py-2 border border-slate-300 rounded-lg font-mono focus:outline-none focus:border-indigo-500" />
                   <button id="btn-google-oauth-login" onclick="startGoogleOAuthPopup()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg shrink-0">
@@ -334,11 +349,11 @@
                 </div>
               </div>
               <div>
-                <label class="font-bold text-slate-700 block mb-1">Google Drive Access Token (授权后自动填入，有效期1小时)</label>
-                <input id="input-drive-token" type="password" placeholder="ya29.a0... (授权登录后自动填入并触发双向同步)" class="w-full px-3 py-2 border border-slate-300 rounded-lg font-mono focus:outline-none focus:border-indigo-500" />
+                <label class="font-bold text-slate-700 block mb-1">Google Drive Access Token (方案B授权后自动填入)</label>
+                <input id="input-drive-token" type="password" placeholder="ya29.a0..." class="w-full px-3 py-2 border border-slate-300 rounded-lg font-mono focus:outline-none focus:border-indigo-500" />
               </div>
               <div class="flex items-center justify-between pt-1">
-                <span id="privacy-burn-status" class="text-emerald-700 font-medium">🔒 手写原图云端缓存阅后即焚已开启</span>
+                <span id="privacy-burn-status" class="text-emerald-700 font-medium">🔒 手写拍照前端 1600px 极速压缩 + 阅后即焚已开启</span>
                 <input id="toggle-auto-burn" type="checkbox" checked class="w-4 h-4 accent-indigo-600 rounded" />
               </div>
               <button id="btn-save-settings" onclick="saveAppSettings()" class="w-full py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white">
@@ -357,9 +372,11 @@
                   在电脑 Chrome/Edge 上点击「绑定文件夹」，每篇笔记都会实时在你电脑硬盘里生成真实的 `.md` 文件；也可以随时点击「打包导出」。
                 </p>
                 <div class="p-2.5 rounded-lg bg-white border border-slate-200/80 text-[11px] text-slate-600 space-y-1">
-                  <div class="font-semibold text-slate-800">📍 本机密钥保存位置说明：</div>
-                  <div>• 存储路径：浏览器 <code class="text-pink-600">localStorage['my_upnote_personal_v3']</code></div>
-                  <div>• 查看方法：电脑按 <code class="bg-slate-100 px-1 rounded">F12</code> → <code class="bg-slate-100 px-1 rounded">Application</code> → <code class="bg-slate-100 px-1 rounded">Local Storage</code></div>
+                  <div class="font-semibold text-slate-800">✨ 已实装专家级架构升级：</div>
+                  <div>1. <strong>真·多端冲突拦截</strong>：双端同时存在未同步离线修改时自动拦截并弹出比对裁决窗，绝不静默覆盖。</div>
+                  <div>2. <strong>绝对日期换算</strong>：AI 自动将「明早/本周四」换算为标准 <code class="text-indigo-600">YYYY-MM-DD HH:mm</code>。</div>
+                  <div>3. <strong>双向勾选同步</strong>：待办清单打勾与笔记正文 <code class="text-emerald-700">- [x]</code> 实时双向联动。</div>
+                  <div>4. <strong>拍照极速压缩</strong>：手机大图前端自动缩至 1600px JPEG (约 200KB)，蜂窝网络秒传。</div>
                 </div>
               </div>
               <div class="grid grid-cols-2 gap-2">
@@ -374,11 +391,11 @@
           </div>
         </div>
 
-        <!-- Card 2: Google Drive Two-Way Sync & Conflict Control -->
+        <!-- Card 2: Google Drive Two-Way Sync & Real Conflict Control -->
         <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div>
-              <h2 class="text-base font-bold text-slate-900">☁️ 2. Google Drive 手机+电脑双向同步控制</h2>
+              <h2 class="text-base font-bold text-slate-900">☁️ 2. Google Drive 手机+电脑双向同步与真冲突拦截</h2>
               <p class="text-xs text-slate-500 mt-0.5">当前防抖间隔：<strong id="label-debounce-sec">15秒</strong> · <span id="note-rev-info">本地 v1 · Drive v1</span></p>
             </div>
             <div class="flex flex-wrap items-center gap-2">
@@ -413,16 +430,16 @@
               </select>
             </div>
             <div>
-              <label class="font-bold text-slate-700 block mb-1">多端并发冲突策略</label>
+              <label class="font-bold text-slate-700 block mb-1">双端离线并发修改冲突策略</label>
               <select id="select-conflict-policy" onchange="updateSyncConfig()" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg font-medium">
-                <option value="ask" selected>按最新修改时间智能合并 (推荐)</option>
+                <option value="ask" selected>弹窗人工比对裁决 (严防静默覆盖)</option>
                 <option value="merge">自动双栏无损合并</option>
                 <option value="newest">按最新时间自动覆盖</option>
               </select>
             </div>
           </div>
 
-          <!-- Sync Activity Log (Always visible so user can verify real Drive sync!) -->
+          <!-- Sync Activity Log -->
           <div class="space-y-1.5">
             <div class="text-xs font-bold text-slate-700">📋 实时网盘同步状态日志：</div>
             <div id="sync-log-list" class="divide-y divide-slate-100 max-h-36 overflow-y-auto custom-scroll border border-slate-200 rounded-xl bg-slate-50/60"></div>
@@ -485,13 +502,13 @@
     <button id="m-nav-tools" onclick="switchMainView('sync')" class="hidden">AI 工具插槽</button>
   </nav>
 
-  <!-- MODAL 5: HANDWRITTEN NOTE SNAP & PHOTO ALBUM MODAL (Dual Buttons: Album + Camera!) -->
+  <!-- MODAL 5: HANDWRITTEN NOTE SNAP & PHOTO ALBUM MODAL (With 1600px Canvas Compression!) -->
   <div id="modal-handwriting-snap" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-2xl max-w-xl w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="px-4 sm:px-5 py-3.5 bg-indigo-600 text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
           <i data-lucide="camera" class="w-4 h-4"></i>
-          <h3 class="text-sm font-bold">📸 导入手写笔记 -> 自动转文字 + 分类 + 抽待办</h3>
+          <h3 class="text-sm font-bold">📸 导入手写笔记 -> 极速压缩 + 转文字 + 绝对日期抽待办</h3>
         </div>
         <button id="btn-close-snap-modal" onclick="closeHandwritingSnapModal()" class="p-1 rounded-lg text-white/80 hover:bg-white/10">
           <i data-lucide="x" class="w-4 h-4"></i>
@@ -499,11 +516,11 @@
       </div>
 
       <div class="p-4 sm:p-5 overflow-y-auto custom-scroll space-y-4 text-xs flex-1">
-        <!-- Dual Picker: 1. Choose from Phone Photo Album (No capture attribute!) 2. Direct Camera Capture -->
+        <!-- Dual Picker: 1. Choose from Phone Photo Album 2. Direct Camera Capture -->
         <div class="border-2 border-dashed border-indigo-200 rounded-xl p-4 bg-indigo-50/30 text-center space-y-2.5">
-          <div class="font-bold text-slate-800 text-sm">选择图片来源（支持手机相册选图 或 直接拍照）</div>
+          <div class="font-bold text-slate-800 text-sm">选择图片来源（自动开启 1600px 智能压缩，蜂窝网络秒传）</div>
           <div class="pt-1 flex items-center justify-center gap-2.5 flex-wrap">
-            <!-- Button 1: Open Phone Photo Library / Gallery (No capture attribute so album works!) -->
+            <!-- Button 1: Open Phone Photo Library / Gallery -->
             <label for="handwriting-file-input" class="cursor-pointer px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl inline-flex items-center gap-1.5 shadow-xs">
               <i data-lucide="image" class="w-4 h-4"></i>
               🖼️ 从手机相册 / 文件选择
@@ -557,8 +574,8 @@
     <div class="bg-white rounded-2xl max-w-2xl w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
       <div class="px-5 py-3.5 bg-rose-50 border-b border-rose-200 flex items-center justify-between">
         <div>
-          <h3 class="text-sm font-bold text-rose-950">检测到多端同步冲突</h3>
-          <p id="conflict-modal-subtitle" class="text-xs text-rose-700">请选择保留方式</p>
+          <h3 class="text-sm font-bold text-rose-950">检测到多端同步冲突（已自动拦截静默覆盖）</h3>
+          <p id="conflict-modal-subtitle" class="text-xs text-rose-700">本机与网盘均存在未同步的独立修改，请选择保留方式</p>
         </div>
         <button id="btn-close-conflict" onclick="closeConflictModal()" class="p-1 rounded-lg text-rose-700 hover:bg-rose-100">
           <i data-lucide="x" class="w-4 h-4"></i>
@@ -567,13 +584,13 @@
       <div class="p-4 overflow-y-auto custom-scroll grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
         <div class="border border-indigo-200 rounded-xl p-3 bg-indigo-50/30">
           <div class="flex justify-between text-xs font-bold text-indigo-900 mb-1">
-            <span>本机修改</span><span id="conflict-local-time">v2</span>
+            <span>本机未同步修改</span><span id="conflict-local-time">v2</span>
           </div>
           <pre id="conflict-local-content" class="text-xs text-slate-800 whitespace-pre-wrap font-sans max-h-52 overflow-y-auto"></pre>
         </div>
         <div class="border border-emerald-200 rounded-xl p-3 bg-emerald-50/30">
           <div class="flex justify-between text-xs font-bold text-emerald-900 mb-1">
-            <span>网盘版本</span><span id="conflict-remote-time">Drive v2</span>
+            <span>网盘另一端修改</span><span id="conflict-remote-time">Drive v2</span>
           </div>
           <pre id="conflict-remote-content" class="text-xs text-slate-800 whitespace-pre-wrap font-sans max-h-52 overflow-y-auto"></pre>
         </div>
@@ -648,7 +665,7 @@
 
   <script>
     // =========================================================================
-    // 1. STATE & STORAGE ENGINE
+    // 1. STATE, ABSOLUTE DATE RESOLVER & STORAGE ENGINE
     // =========================================================================
     const STORAGE_KEY = 'my_upnote_personal_v3';
     let localDirectoryHandle = null;
@@ -659,6 +676,7 @@
     let recordedChunks = [];
     let activeRunnerToolId = null;
     let pendingHandwritingFile = null;
+    let pendingCompressedBase64 = null;
     let editorMode = 'edit'; // 'edit' | 'preview' | 'split'
     let summaryFolded = true;
     let desktopDrawerOpen = true;
@@ -671,13 +689,77 @@
       '灵感随笔类': { icon: '💡', short: '随笔',     badgeClass: 'bg-amber-600 text-white', lightClass: 'bg-amber-50 text-amber-800 border-amber-200' }
     };
 
+    // Helper: Get exact current date & weekday for Gemini Prompt & Local Relative Date Resolver
+    function getCurrentDateContextString() {
+      const now = new Date();
+      const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const hh = String(now.getHours()).padStart(2, '0');
+      const min = String(now.getMinutes()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd} ${weekdays[now.getDay()]} ${hh}:${min}`;
+    }
+
+    // Converts relative phrases ("明早 10:30", "本周四前", "下周二") into absolute YYYY-MM-DD strings
+    function resolveRelativeDueToAbsolute(rawDue) {
+      if (!rawDue) return formatDateYMD(new Date()) + ' (近期)';
+      const trimmed = String(rawDue).trim();
+      if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) return trimmed;
+
+      const now = new Date();
+      const target = new Date(now.getTime());
+      const curDay = now.getDay() === 0 ? 7 : now.getDay(); // 1(Mon) .. 7(Sun)
+      const cnMap = { '一': 1, '二': 2, '三': 3, '四': 4, '五': 5, '六': 6, '日': 7, '天': 7 };
+
+      if (/後天|后天/.test(trimmed)) {
+        target.setDate(now.getDate() + 2);
+      } else if (/明天|明早|明晚|明日/.test(trimmed)) {
+        target.setDate(now.getDate() + 1);
+      } else if (/下周([一二三四五六日天])/.test(trimmed)) {
+        const m = trimmed.match(/下周([一二三四五六日天])/);
+        const targetWeekday = cnMap[m[1]] || 1;
+        const diff = (7 - curDay) + targetWeekday;
+        target.setDate(now.getDate() + diff);
+      } else if (/周([一二三四五六日天])|星期([一二三四五六日天])/.test(trimmed)) {
+        const m = trimmed.match(/(?:周|星期)([一二三四五六日天])/);
+        const targetWeekday = cnMap[m[1]] || curDay;
+        let diff = targetWeekday - curDay;
+        if (diff < 0) diff += 7;
+        target.setDate(now.getDate() + diff);
+      }
+
+      let timeSuffix = '';
+      const timeMatch = trimmed.match(/(\d{1,2})[:点时](\d{2})?/);
+      if (timeMatch) {
+        let hour = parseInt(timeMatch[1], 10);
+        const minute = timeMatch[2] || '00';
+        if (/下午|晚上|晚/.test(trimmed) && hour < 12) hour += 12;
+        timeSuffix = ` ${String(hour).padStart(2, '0')}:${minute}`;
+      } else if (/早|上午/.test(trimmed)) {
+        timeSuffix = ' 09:00';
+      } else if (/下午/.test(trimmed)) {
+        timeSuffix = ' 17:00';
+      }
+
+      const ymd = formatDateYMD(target);
+      return `${ymd}${timeSuffix} (${trimmed})`;
+    }
+
+    function formatDateYMD(d) {
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
     const defaultNotes = [
       {
         id: 'note-1',
         title: '💼 拜访华东智造王总手写记录',
         category: '客户情报类',
-        summary: `• 客户画像：华东智造（年产值 3 亿），王建国为生产副总（核心拍板人）。\n• 核心痛点：3号产线人工目检漏检率约 4.5%，急需在年底前上线视觉检测。\n• 预算与周期：已批预算 35~45 万，已自动提取 2 条待办至【待办清单】。`,
-        content: `## 📌 拜访基本信息\n- **时间**：10月28日下午 昆山工厂\n- **对象**：华东智造 **王建国**（生产副总，直接负责技改立项）\n\n## ✍️ 现场沟通与手写记录要点\n1. 目前 3 号产线每天出货 \`20,000 件\`，人工目检太累，漏检率大概 **4.5%**，上个月被客户罚款。\n2. 王总明确今年技改账户还剩 **40 万左右额度**，必须在 12 月底前验收走账。\n3. 竞品 A 公司上周去报了 55 万，王总嫌贵且交付周期太长。\n\n> 💡 核心突破口：只要我们能提供免停线的旁路支架方案，下月即可签合同。\n\n## ✅ 下一步跟进待办\n- [ ] 周四下午 5 点前发一份 38 万的标准版报价单给王总微信\n- [ ] 下周二安排技术小陈带样机去昆山车间做现场测试`,
+        summary: `• 客户画像：华东智造（年产值 3 亿），王建国为生产副总（核心拍板人）。\n• 核心痛点：3号产线人工目检漏检率约 4.5%，急需在年底前上线视觉检测。\n• 预算与周期：已批预算 35~45 万，已自动提取 2 条绝对日期的待办至【待办清单】。`,
+        content: `## 📌 拜访基本信息\n- **时间**：10月28日下午 昆山工厂\n- **对象**：华东智造 **王建国**（生产副总，直接负责技改立项）\n\n## ✍️ 现场沟通与手写记录要点\n1. 目前 3 号产线每天出货 \`20,000 件\`，人工目检太累，漏检率大概 **4.5%**，上个月被客户罚款。\n2. 王总明确今年技改账户还剩 **40 万左右额度**，必须在 12 月底前验收走账。\n3. 竞品 A 公司上周去报了 55 万，王总嫌贵且交付周期太长。\n\n> 💡 核心突破口：只要我们能提供免停线的旁路支架方案，下月即可签合同。\n\n## ✅ 下一步跟进待办\n- [ ] 周四下午 5 点前发一份 38 万标准版报价单给华东智造王总\n- [ ] 下周二安排技术小陈带样机去昆山车间做现场视觉测试`,
         tags: ['客户情报', '华东智造', '王总'],
         starred: true,
         trashed: false,
@@ -691,8 +773,8 @@
         id: 'note-2',
         title: '📋 键盘直接输入与 Markdown 排版示例',
         category: '会议纪要类',
-        summary: `• 界面已全面精简：手机竖屏自适应全部按钮，支持相册选图与直接拍照。\n• 支持直接输入或点击快捷栏使用 Markdown 排版，右上角可一键切换「编辑 / 预览」。`,
-        content: `# 极简大屏写作体验\n\n除了用手机 **拍手写笔记 / 相册选图** 导入，你平时也可以直接在程序里打字记录：\n\n### 1. 常用 Markdown 快捷排版\n- 支持 **加粗重点文字** 与 \`行内高亮代码\`\n- 支持多级标题与引用块：\n> 点击右上角的 **「📖 阅读预览」** 或 **「🌗 双栏」**，即可查看整洁的排版效果。\n\n### 2. 交互式待办勾选框\n- [x] 扩大核心打字输入框尺寸，适配手机竖屏单手操作\n- [ ] 在预览模式下直接点击方框即可完成勾选`,
+        summary: `• 已实装双向勾选联动：在【待办清单】打勾会自动同步笔记正文里的 [x]，反之亦然。\n• 支持直接输入或点击快捷栏使用 Markdown 排版，右上角可一键切换「编辑 / 阅读预览」。`,
+        content: `# 极简大屏写作体验\n\n除了用手机 **拍手写笔记 / 相册选图** 导入，你平时也可以直接在程序里打字记录：\n\n### 1. 常用 Markdown 快捷排版\n- 支持 **加粗重点文字** 与 \`行内高亮代码\`\n- 支持多级标题与引用块：\n> 点击右上角的 **「📖 阅读预览」** 或 **「🌗 双栏」**，即可查看整洁的排版效果。\n\n### 2. 双向联动的待办勾选框\n- [x] 扩大核心打字输入框尺寸，适配手机竖屏单手操作\n- [ ] 周五前完成历史纸质手写笔记的拍照归档测试`,
         tags: ['使用指南', 'Markdown'],
         starred: false,
         trashed: false,
@@ -709,7 +791,7 @@
         id: 'todo-1',
         text: '周四下午 5 点前发一份 38 万标准版报价单给华东智造王总',
         priority: 'high',
-        due: '周四 17:00',
+        due: resolveRelativeDueToAbsolute('周四 17:00'),
         done: false,
         sourceNoteId: 'note-1',
         sourceNoteTitle: '💼 拜访华东智造王总手写记录',
@@ -719,7 +801,7 @@
         id: 'todo-2',
         text: '下周二安排技术小陈带样机去昆山车间做现场视觉测试',
         priority: 'medium',
-        due: '下周二',
+        due: resolveRelativeDueToAbsolute('下周二'),
         done: false,
         sourceNoteId: 'note-1',
         sourceNoteTitle: '💼 拜访华东智造王总手写记录',
@@ -729,7 +811,7 @@
         id: 'todo-3',
         text: '周五前完成历史纸质手写笔记的拍照归档测试',
         priority: 'low',
-        due: '周五前',
+        due: resolveRelativeDueToAbsolute('周五前'),
         done: false,
         sourceNoteId: 'note-2',
         sourceNoteTitle: '📋 键盘直接输入与 Markdown 排版示例',
@@ -779,6 +861,7 @@
       },
       settings: {
         geminiApiKey: '',
+        gasWebAppUrl: '',
         googleClientId: '',
         driveAccessToken: '',
         tokenExpiresAt: 0,
@@ -786,7 +869,7 @@
       },
       conflicts: [],
       syncLogs: [
-        { time: '刚刚', action: '系统就绪', detail: '已加载本地配置，支持 Google Drive 双向合并同步', status: 'ok' }
+        { time: '刚刚', action: '系统就绪', detail: '已启用真冲突拦截、绝对日期换算、双向勾选同步与1600px拍照压缩', status: 'ok' }
       ]
     };
 
@@ -831,7 +914,7 @@
     }
 
     // =========================================================================
-    // 2. MARKDOWN PARSER & EDITOR MODE CONTROLLER
+    // 2. MARKDOWN PARSER & TWO-WAY CHECKBOX <-> TODO LIST SYNC
     // =========================================================================
     function renderSimpleMarkdown(mdText) {
       if (!mdText) return '<p class="text-slate-400">暂无内容...</p>';
@@ -927,20 +1010,87 @@
       return s;
     }
 
+    function normalizeTaskText(s) {
+      return String(s || '').replace(/^[-*•\s]+|\[[ xX]\]|\*\*|`/g, '').trim();
+    }
+
+    // Direction 1: Toggling checkbox inside Note Preview -> updates appState.todos!
     function toggleMarkdownCheckbox(lineIndex) {
       const note = appState.notes.find(n => n.id === appState.currentNoteId);
       if (!note || !note.content) return;
       const lines = note.content.split('\n');
       if (lines[lineIndex] !== undefined) {
-        if (/\[ \]/.test(lines[lineIndex])) {
+        const nowChecked = /\[ \]/.test(lines[lineIndex]);
+        if (nowChecked) {
           lines[lineIndex] = lines[lineIndex].replace('[ ]', '[x]');
         } else {
           lines[lineIndex] = lines[lineIndex].replace(/\[[xX]\]/, '[ ]');
         }
+        const taskClean = normalizeTaskText(lines[lineIndex]);
         note.content = lines.join('\n');
         document.getElementById('note-content-input').value = note.content;
+
+        // Sync to appState.todos
+        if (taskClean) {
+          let matchedTodo = appState.todos.find(t =>
+            (t.sourceNoteId === note.id && (normalizeTaskText(t.text).includes(taskClean) || taskClean.includes(normalizeTaskText(t.text)))) ||
+            normalizeTaskText(t.text) === taskClean
+          );
+          if (matchedTodo) {
+            matchedTodo.done = nowChecked;
+            matchedTodo.updatedAt = Date.now();
+          } else if (nowChecked === false) {
+            appState.todos.unshift({
+              id: 'todo-' + Date.now(),
+              text: taskClean,
+              priority: 'medium',
+              due: resolveRelativeDueToAbsolute(taskClean),
+              done: false,
+              sourceNoteId: note.id,
+              sourceNoteTitle: note.title,
+              updatedAt: Date.now()
+            });
+          }
+          renderTodoLists();
+        }
         handleNoteEdit();
       }
+    }
+
+    // Direction 2: Toggling checkbox in 【待办清单】 -> updates the source note's Markdown `[ ]` / `[x]`!
+    function syncTodoStatusToSourceNote(todoItem) {
+      if (!todoItem) return;
+      const targetNotes = todoItem.sourceNoteId
+        ? appState.notes.filter(n => n.id === todoItem.sourceNoteId)
+        : appState.notes;
+      const todoClean = normalizeTaskText(todoItem.text);
+      if (!todoClean) return;
+
+      targetNotes.forEach(note => {
+        if (!note.content) return;
+        const lines = note.content.split('\n');
+        let changed = false;
+        const updatedLines = lines.map(line => {
+          if (/^[-*]\s+\[([ xX])\]\s+/.test(line.trim())) {
+            const lineClean = normalizeTaskText(line);
+            if (lineClean && (lineClean === todoClean || lineClean.includes(todoClean) || todoClean.includes(lineClean))) {
+              changed = true;
+              return todoItem.done
+                ? line.replace(/\[[ xX]\]/, '[x]')
+                : line.replace(/\[[ xX]\]/, '[ ]');
+            }
+          }
+          return line;
+        });
+
+        if (changed) {
+          note.content = updatedLines.join('\n');
+          note.updatedAt = Date.now();
+          note.localRev = (note.localRev || 1) + 1;
+          note.isDirty = true;
+          writeNoteToLocalHardDrive(note);
+        }
+      });
     }
 
     function insertMdSyntax(prefix, suffix) {
@@ -1047,9 +1197,11 @@
 
     function syncSettingsInputs() {
       const gk = document.getElementById('input-gemini-key');
+      const gas = document.getElementById('input-gas-url');
       const gc = document.getElementById('input-google-client-id');
       const dt = document.getElementById('input-drive-token');
       if (gk && document.activeElement !== gk) gk.value = appState.settings.geminiApiKey || '';
+      if (gas && document.activeElement !== gas) gas.value = appState.settings.gasWebAppUrl || '';
       if (gc && document.activeElement !== gc) gc.value = appState.settings.googleClientId || '';
       if (dt && document.activeElement !== dt) dt.value = appState.settings.driveAccessToken || '';
     }
@@ -1189,7 +1341,7 @@
             <p class="text-[11px] text-slate-500 truncate mt-0.5">${escapeHtml(snippet)}</p>
             <div class="flex items-center justify-between mt-1.5">
               <span class="text-[10px] font-medium px-1.5 py-0.2 rounded border ${catInfo.lightClass}">${catInfo.icon} ${catInfo.short}</span>
-              <span class="text-[10px] text-slate-400">${formatTimeAgo(n.updatedAt)}</span>
+              <span class="text-[10px] text-slate-400">${n.isDirty ? '● 未同步 · ' : ''}${formatTimeAgo(n.updatedAt)}</span>
             </div>
           </div>
         `;
@@ -1253,47 +1405,86 @@
     }
 
     // =========================================================================
-    // 4. HANDWRITTEN NOTE OCR + AUTO-CLASSIFY + TODO PIPELINE
+    // 4. FRONT-END 1600px IMAGE COMPRESSION + HANDWRITING OCR + ABSOLUTE DATE
     // =========================================================================
+    // Compresses 5MB~10MB mobile photos down to ~200KB JPEG (max 1600px, quality 0.8)
+    function compressImageFileToBase64(file, maxEdge = 1600, quality = 0.8) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onerror = reject;
+          img.onload = () => {
+            let w = img.width;
+            let h = img.height;
+            if (w > maxEdge || h > maxEdge) {
+              if (w >= h) {
+                h = Math.round((h * maxEdge) / w);
+                w = maxEdge;
+              } else {
+                w = Math.round((w * maxEdge) / h);
+                h = maxEdge;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, w, h);
+            ctx.drawImage(img, 0, 0, w, h);
+            const dataUrl = canvas.toDataURL('image/jpeg', quality);
+            const b64 = (dataUrl.split(',')[1] || '');
+            const approxKB = Math.round((b64.length * 3) / 4 / 1024);
+            resolve({ base64: b64, mimeType: 'image/jpeg', width: w, height: h, approxKB });
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
     const HANDWRITING_SAMPLES = {
       'sample-client': {
         title: '💼 苏州精工张总拜访手写笔记',
         category: '客户情报类',
         tags: ['客户情报', '苏州精工', '张总'],
-        summary: `• 客户画像：苏州精工，关键决策人为张总（工程总监）。\n• 核心痛点：2号冲压线人工抽检夜班漏检率高，预算 40 万以内。\n• 已自动提取 2 项跟进待办至【待办清单】。`,
-        rawTranscription: `## 📸 手写拜访记录还原\n- **日期**：10月28日 苏州工业园区\n- **拜访对象**：苏州精工 **张明远**（工程部总监）\n\n### 核心情报要点\n1. 现场看了 2 号冲压线，节拍每分钟 60 件，人工肉眼看划痕夜班经常漏检。\n2. 张总说今年技改预算还剩 **40 万左右**，只要漏检率压到 \`0.1%\` 以下，下月就能签合同。\n3. 希望提供免停线的旁路支架方案。\n\n### 手写画圈待办\n- [ ] 周四前把旁路支架 3D 示意图和 38 万打包报价发给张总\n- [ ] 安排老王周五寄 20 个样品回实验室做打光测试`,
+        summary: `• 客户画像：苏州精工，关键决策人为张总（工程总监）。\n• 核心痛点：2号冲压线人工抽检夜班漏检率高，预算 40 万以内。\n• 已自动提取 2 项带绝对日期的跟进待办至【待办清单】。`,
+        rawTranscription: `## 📸 手写拜访记录还原\n- **日期**：${formatDateYMD(new Date())} 苏州工业园区\n- **拜访对象**：苏州精工 **张明远**（工程部总监）\n\n### 核心情报要点\n1. 现场看了 2 号冲压线，节拍每分钟 60 件，人工肉眼看划痕夜班经常漏检。\n2. 张总说今年技改预算还剩 **40 万左右**，只要漏检率压到 \`0.1%\` 以下，下月就能签合同。\n3. 希望提供免停线的旁路支架方案。\n\n### 手写画圈待办\n- [ ] 周四前把旁路支架 3D 示意图和 38 万打包报价发给苏州精工张总\n- [ ] 安排老王周五寄 20 个苏州精工样品回实验室做打光测试`,
         todos: [
-          { text: '周四前把旁路支架 3D 示意图和 38 万打包报价发给苏州精工张总', priority: 'high', due: '本周四前' },
-          { text: '安排老王周五寄 20 个苏州精工样品回实验室做打光测试', priority: 'medium', due: '本周五' }
+          { text: '周四前把旁路支架 3D 示意图和 38 万打包报价发给苏州精工张总', priority: 'high', due: resolveRelativeDueToAbsolute('本周四 17:00') },
+          { text: '安排老王周五寄 20 个苏州精工样品回实验室做打光测试', priority: 'medium', due: resolveRelativeDueToAbsolute('本周五 17:00') }
         ]
       },
       'sample-meeting': {
         title: '📋 Q4 产品迭代碰头会手写纪要',
         category: '会议纪要类',
         tags: ['会议纪要', '产品周会'],
-        summary: `• 核心决议：确定以「极简大屏输入 + 手写拍照自动分类 + 待办提取」为核心版本。\n• 已从会议分工中提取 2 项行动待办至【待办清单】。`,
+        summary: `• 核心决议：确定以「极简大屏输入 + 手写拍照自动分类 + 绝对日期待办提取」为核心版本。\n• 已从会议分工中提取 2 项行动待办至【待办清单】。`,
         rawTranscription: `## 📸 会议白板手写记录\n- **议题**：Q4 个人笔记工具极简改造\n\n### 关键决议\n1. 大幅精简界面按钮，把打字区扩大到全屏 85% 以上，支持直接输入 Markdown。\n2. 手机拍手写稿自动归入「客户情报 / 会议纪要 / 待办 / 随笔」四类。\n\n### 会后分工\n- [ ] 周三晚 8 点前完成手机端主屏幕安装与后置相机拍手写稿测试\n- [ ] 周五下午整理历史客户拜访手写本归档`,
         todos: [
-          { text: '周三晚 8 点前完成手机端主屏幕安装与后置相机拍手写稿测试', priority: 'high', due: '周三 20:00' },
-          { text: '周五下午整理历史客户拜访手写本归档', priority: 'medium', due: '周五下午' }
+          { text: '周三晚 8 点前完成手机端主屏幕安装与后置相机拍手写稿测试', priority: 'high', due: resolveRelativeDueToAbsolute('周三 20:00') },
+          { text: '周五下午整理历史客户拜访手写本归档', priority: 'medium', due: resolveRelativeDueToAbsolute('周五下午') }
         ]
       },
       'sample-todo': {
         title: '✅ 桌面手写便利贴：本周紧急待办',
         category: '待办类',
         tags: ['待办事项', '本周必做'],
-        summary: `• 清单概览：共识别出 3 项手写待办任务，已全部自动拆解并同步至【我的待办清单】！`,
-        rawTranscription: `## 📸 桌面手写便利贴存档\n- [ ] 明天上午 10:30 前找财务核对三季度增值税抵扣发票（紧急！）\n- [ ] 给宁波李总回电话确认下周三去工厂验货的高铁票时间\n- [ ] 周六上午 9 点带父母去体检中心（记得带身份证）`,
+        summary: `• 清单概览：共识别出 3 项手写待办任务，已全部自动换算为 YYYY-MM-DD 绝对日期并同步至【我的待办清单】！`,
+        rawTranscription: `## 📸 桌面手写便利贴存档\n- [ ] 明早 10:30 前找财务核对三季度增值税抵扣发票\n- [ ] 给宁波李总回电话确认下周三去工厂验货的高铁票\n- [ ] 周六上午 9 点带父母去体检中心（带身份证）`,
         todos: [
-          { text: '明早 10:30 前找财务核对三季度增值税抵扣发票', priority: 'high', due: '明早 10:30' },
-          { text: '给宁波李总回电话确认下周三去工厂验货的高铁票', priority: 'medium', due: '本周内' },
-          { text: '周六上午 9 点带父母去体检中心（带身份证）', priority: 'low', due: '周六 09:00' }
+          { text: '明早 10:30 前找财务核对三季度增值税抵扣发票', priority: 'high', due: resolveRelativeDueToAbsolute('明早 10:30') },
+          { text: '给宁波李总回电话确认下周三去工厂验货的高铁票', priority: 'medium', due: resolveRelativeDueToAbsolute('下周三') },
+          { text: '周六上午 9 点带父母去体检中心（带身份证）', priority: 'low', due: resolveRelativeDueToAbsolute('周六 09:00') }
         ]
       }
     };
 
     function openHandwritingSnapModal() {
       pendingHandwritingFile = null;
+      pendingCompressedBase64 = null;
       document.getElementById('selected-handwriting-filename').textContent = '';
       document.getElementById('handwriting-manual-text').value = '';
       const f1 = document.getElementById('handwriting-file-input');
@@ -1311,10 +1502,20 @@
       modal.classList.remove('flex');
     }
 
-    function handleHandwritingFileSelected(inputEl) {
+    async function handleHandwritingFileSelected(inputEl) {
       if (inputEl.files && inputEl.files[0]) {
         pendingHandwritingFile = inputEl.files[0];
-        document.getElementById('selected-handwriting-filename').textContent = `✅ 已选择图片：${pendingHandwritingFile.name}（点击右下角「开始识别存档」即可处理）`;
+        const origKB = Math.round(pendingHandwritingFile.size / 1024);
+        const statusEl = document.getElementById('selected-handwriting-filename');
+        statusEl.textContent = `⏳ 正在对 ${pendingHandwritingFile.name} (${origKB}KB) 执行 1600px 智能压缩...`;
+        try {
+          const compressed = await compressImageFileToBase64(pendingHandwritingFile, 1600, 0.8);
+          pendingCompressedBase64 = compressed;
+          statusEl.textContent = `✅ 已就绪：${pendingHandwritingFile.name}（原图 ${origKB}KB → 压缩后 ${compressed.approxKB}KB，点击右下角开始识别）`;
+        } catch (e) {
+          pendingCompressedBase64 = null;
+          statusEl.textContent = `✅ 已选择：${pendingHandwritingFile.name}`;
+        }
       }
     }
 
@@ -1326,10 +1527,11 @@
       const bannerText = document.getElementById('ai-banner-text');
       banner.classList.remove('hidden');
       banner.classList.add('flex');
-      bannerText.textContent = `📸 正在通过 ${appState.defaultModel} 识别手写字迹、自动分类并提取待办...`;
+      bannerText.textContent = `📸 正在通过 ${appState.defaultModel} 识别手写字迹、换算绝对日期并提取待办...`;
 
       let resultData = null;
       const apiKey = (appState.settings.geminiApiKey || '').trim();
+      const nowContext = getCurrentDateContextString();
 
       if (mode.startsWith('sample-') && !apiKey) {
         await new Promise(r => setTimeout(r, 500));
@@ -1337,12 +1539,15 @@
       } else if (apiKey && (pendingHandwritingFile || manualText || mode.startsWith('sample-'))) {
         try {
           const sampleFallback = HANDWRITING_SAMPLES[mode] || HANDWRITING_SAMPLES['sample-client'];
-          const sysPrompt = `请识别手写笔记图片或文本，严格只输出 JSON 格式：
-{"title":"标题","category":"客户情报类|会议纪要类|待办类|灵感随笔类","tags":["标签1","标签2"],"summary":"针对该分类的定制摘要","rawTranscription":"Markdown格式的手写原文存档","todos":[{"text":"待办事项","priority":"high|medium|low","due":"期限"}]}`;
+          const sysPrompt = `当前系统准确时间：${nowContext}。
+请识别手写笔记图片或文本，严格只输出 JSON 格式：
+{"title":"标题","category":"客户情报类|会议纪要类|待办类|灵感随笔类","tags":["标签1","标签2"],"summary":"针对该分类的定制摘要","rawTranscription":"Markdown格式的手写原文存档（待办项请使用 - [ ] 格式）","todos":[{"text":"待办事项","priority":"high|medium|low","due":"基于当前时间换算出的 YYYY-MM-DD HH:mm (原相对时间描述)"}]}`;
           const parts = [{ text: sysPrompt + '\n\n内容：\n' + (manualText || (mode.startsWith('sample-') ? sampleFallback.rawTranscription : '请完整识别图片中的手写文字并结构化排版')) }];
-          if (pendingHandwritingFile && pendingHandwritingFile.type.startsWith('image/')) {
-            const b64 = await fileToBase64(pendingHandwritingFile);
-            parts.push({ inline_data: { mime_type: pendingHandwritingFile.type, data: b64 } });
+          if (pendingCompressedBase64 && pendingCompressedBase64.base64) {
+            parts.push({ inline_data: { mime_type: pendingCompressedBase64.mimeType, data: pendingCompressedBase64.base64 } });
+          } else if (pendingHandwritingFile && pendingHandwritingFile.type.startsWith('image/')) {
+            const compressed = await compressImageFileToBase64(pendingHandwritingFile, 1600, 0.8);
+            parts.push({ inline_data: { mime_type: compressed.mimeType, data: compressed.base64 } });
           }
           const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${appState.defaultModel}:generateContent?key=${encodeURIComponent(apiKey)}`, {
             method: 'POST',
@@ -1388,7 +1593,7 @@
       switchMainView('notes');
       renderAll();
       scheduleDebouncedDriveSync();
-      showToast(`已归入【${newNote.category}】并自动添加 ${addedTodosCount} 条待办！`);
+      showToast(`已归入【${newNote.category}】并提取 ${addedTodosCount} 条带绝对日期的待办！`);
     }
 
     async function autoClassifyAndSummarizeCurrentNote() {
@@ -1396,6 +1601,7 @@
       if (!note) return;
 
       const apiKey = (appState.settings.geminiApiKey || '').trim();
+      const nowContext = getCurrentDateContextString();
       let parsed = null;
 
       if (apiKey && (note.content || note.title)) {
@@ -1403,10 +1609,11 @@
         const bannerText = document.getElementById('ai-banner-text');
         banner.classList.remove('hidden');
         banner.classList.add('flex');
-        bannerText.textContent = `✨ 正在调用 ${appState.defaultModel} 分类并提炼摘要与待办...`;
+        bannerText.textContent = `✨ 正在调用 ${appState.defaultModel} 分类、提炼摘要并换算待办绝对日期...`;
         try {
-          const sysPrompt = `请分析以下笔记内容，判断其分类，生成针对性摘要，并提取所有待办事项。严格只输出 JSON 格式：
-{"category":"客户情报类|会议纪要类|待办类|灵感随笔类","tags":["标签1","标签2"],"summary":"针对该类别的结构化摘要（分行要点）","todos":[{"text":"待办事项","priority":"high|medium|low","due":"期限"}]}`;
+          const sysPrompt = `当前系统准确时间：${nowContext}。
+请分析以下笔记内容，判断其分类，生成针对性摘要，并提取所有待办事项（将“明天/本周四/下周二”等相对时间换算为标准 YYYY-MM-DD HH:mm 格式）。严格只输出 JSON 格式：
+{"category":"客户情报类|会议纪要类|待办类|灵感随笔类","tags":["标签1","标签2"],"summary":"针对该类别的结构化摘要（分行要点）","todos":[{"text":"待办事项","priority":"high|medium|low","due":"YYYY-MM-DD HH:mm (原相对时间描述)"}]}`;
           const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${appState.defaultModel}:generateContent?key=${encodeURIComponent(apiKey)}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1438,7 +1645,7 @@
 
       handleNoteEdit();
       renderAll();
-      showToast(`AI 整理完成：归入【${note.category}】，新增 ${added} 条待办`);
+      showToast(`AI 整理完成：归入【${note.category}】，新增 ${added} 条绝对日期待办`);
     }
 
     function classifyRawTextLocally(rawText) {
@@ -1461,15 +1668,16 @@
       const todos = [];
       lines.forEach(l => {
         if (/周[一二三四五六日]|明天|今天|前|安排|发给|联系|核对|确认|测试|报价|记得/.test(l) && l.length > 4 && l.length < 80) {
+          const rawDue = (l.match(/(?:下周|本周|周)[一二三四五六日][^，,。 ]*|明[天早晚][^，,。 ]*|月底前/) || ['近期'])[0];
           todos.push({
             text: l,
             priority: /紧急|必做|报价/.test(l) ? 'high' : 'medium',
-            due: (l.match(/周[一二三四五六日][^，,。 ]*|明[天早][^，,。 ]*|月底前|本周/) || ['近期'])[0]
+            due: resolveRelativeDueToAbsolute(rawDue)
           });
         }
       });
 
-      const summary = `• 核心提炼：${lines[0] || '已完成内容梳理'}\n• 要点归纳：${lines.slice(1, 3).join('；') || '详见正文记录'}\n• 待办联动：共提取 ${todos.length} 项待办任务同步至待办清单。`;
+      const summary = `• 核心提炼：${lines[0] || '已完成内容梳理'}\n• 要点归纳：${lines.slice(1, 3).join('；') || '详见正文记录'}\n• 待办联动：共提取 ${todos.length} 项绝对日期待办同步至待办清单。`;
 
       return {
         title: lines[0] ? lines[0].slice(0, 22) : '手写笔记存档',
@@ -1484,13 +1692,13 @@
     function pushExtractedTodosToNote(todoArray, sourceNote) {
       let addedCount = 0;
       (todoArray || []).forEach(item => {
-        const exists = appState.todos.some(t => t.text === item.text);
+        const exists = appState.todos.some(t => normalizeTaskText(t.text) === normalizeTaskText(item.text));
         if (!exists && item.text) {
           appState.todos.unshift({
             id: 'todo-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
             text: item.text,
             priority: item.priority || 'medium',
-            due: item.due || '近期',
+            due: resolveRelativeDueToAbsolute(item.due || '近期'),
             done: false,
             sourceNoteId: sourceNote.id,
             sourceNoteTitle: sourceNote.title,
@@ -1503,7 +1711,7 @@
     }
 
     // =========================================================================
-    // 5. TODO LIST CENTER
+    // 5. TODO LIST CENTER (Sorted by Absolute Date & Priority + Bidirectional Sync)
     // =========================================================================
     function renderTodoLists() {
       const pendingCount = appState.todos.filter(t => !t.done).length;
@@ -1520,7 +1728,15 @@
         return;
       }
 
-      fullEl.innerHTML = appState.todos.map(t => {
+      // Sort: uncompleted first, then by YYYY-MM-DD date string ascending
+      const sortedTodos = [...appState.todos].sort((a, b) => {
+        if (!!a.done !== !!b.done) return a.done ? 1 : -1;
+        const da = (a.due || '9999-99-99').slice(0, 16);
+        const db = (b.due || '9999-99-99').slice(0, 16);
+        return da.localeCompare(db);
+      });
+
+      fullEl.innerHTML = sortedTodos.map(t => {
         const pBadge = t.priority === 'high'
           ? '<span class="px-2 py-0.5 bg-rose-100 text-rose-700 rounded text-[11px] font-bold">🔥 高优</span>'
           : (t.priority === 'low' ? '<span class="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[11px]">低优</span>' : '<span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded text-[11px]">普通</span>');
@@ -1532,14 +1748,14 @@
                 <div class="text-xs sm:text-sm font-medium ${t.done ? 'line-through text-slate-400' : 'text-slate-900'}">${escapeHtml(t.text)}</div>
                 ${t.sourceNoteId ? `
                   <button onclick="jumpToSourceNote('${t.sourceNoteId}')" class="text-[11px] text-indigo-600 hover:underline mt-0.5 block truncate">
-                    🔗 来自：《${escapeHtml(t.sourceNoteTitle || '原笔记')}》
+                    🔗 来自：《${escapeHtml(t.sourceNoteTitle || '原笔记')}》（打勾已与原笔记正文双向同步）
                   </button>
                 ` : ''}
               </div>
             </div>
             <div class="flex items-center gap-2 shrink-0">
               ${pBadge}
-              <span class="text-xs text-slate-500 font-mono">${escapeHtml(t.due || '')}</span>
+              <span class="text-xs text-slate-600 bg-slate-100 px-2 py-0.5 rounded font-mono">${escapeHtml(t.due || '')}</span>
               <button onclick="deleteTodoItem('${t.id}')" class="p-1 text-slate-400 hover:text-rose-600">×</button>
             </div>
           </div>
@@ -1552,8 +1768,10 @@
       if (!item) return;
       item.done = !item.done;
       item.updatedAt = Date.now();
+      // Sync checkbox state back into the source note's Markdown `[ ]` / `[x]`!
+      syncTodoStatusToSourceNote(item);
       saveState();
-      renderTodoLists();
+      renderAll();
       scheduleDebouncedDriveSync();
     }
 
@@ -1562,11 +1780,12 @@
       if (!el || !el.value.trim()) return;
       const prioEl = document.getElementById('full-todo-priority');
       const dueEl = document.getElementById('full-todo-due');
+      const rawDue = dueEl && dueEl.value.trim() ? dueEl.value.trim() : el.value.trim();
       appState.todos.unshift({
         id: 'todo-' + Date.now(),
         text: el.value.trim(),
         priority: prioEl ? prioEl.value : 'medium',
-        due: dueEl && dueEl.value.trim() ? dueEl.value.trim() : '近期',
+        due: resolveRelativeDueToAbsolute(rawDue),
         done: false,
         sourceNoteId: null,
         sourceNoteTitle: '',
@@ -1577,7 +1796,7 @@
       saveState();
       renderTodoLists();
       scheduleDebouncedDriveSync();
-      showToast('已添加待办事项');
+      showToast('已添加待办事项（已自动换算绝对日期）');
     }
 
     function deleteTodoItem(todoId) {
@@ -1610,14 +1829,38 @@
     }
 
     // =========================================================================
-    // 6. REAL TWO-WAY GOOGLE DRIVE OAUTH + SMART MERGE (PULL + MERGE + PUSH)
+    // 6. GAS PERMANENT BRIDGE + GOOGLE OAUTH + REAL CONFLICT INTERCEPTION
     // =========================================================================
+    function copyGasBridgeScript() {
+      const gasCode = `// 部署在 script.google.com 的 20 行永久免登录同步脚本：
+// 1. 打开 https://script.google.com 新建项目，粘贴本代码
+// 2. 点击右上角「部署」->「新建部署」-> 类型选「网页应用(Web App)」
+// 3. 执行身份选「我(Me)」，谁可以访问选「所有人(Anyone)」，复制生成的 URL 填入 MyUpNote 设置页！
+const FILE_NAME = 'MyUpNote_Sync_Data.json';
+function doGet(e) {
+  const files = DriveApp.getFilesByName(FILE_NAME);
+  if (!files.hasNext()) return ContentService.createTextOutput('{}').setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(files.next().getBlob().getDataAsString()).setMimeType(ContentService.MimeType.JSON);
+}
+function doPost(e) {
+  const body = e.postData.contents;
+  const files = DriveApp.getFilesByName(FILE_NAME);
+  if (files.hasNext()) { files.next().setContent(body); }
+  else { DriveApp.createFile(FILE_NAME, body, MimeType.PLAIN_TEXT); }
+  return ContentService.createTextOutput(JSON.stringify({ok: true})).setMimeType(ContentService.MimeType.JSON);
+}`;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(gasCode);
+      }
+      showToast('📋 已复制 GAS 服务端代码！去 script.google.com 粘贴部署即可永久免弹窗同步');
+    }
+
     function startGoogleOAuthPopup(silentPrompt = false) {
       const clientIdInput = document.getElementById('input-google-client-id');
       const clientId = (clientIdInput && clientIdInput.value ? clientIdInput.value : appState.settings.googleClientId || '').trim();
       if (!clientId) {
         switchMainView('sync');
-        showToast('请先在设置页填入 Google OAuth Client ID');
+        showToast('请先在设置页填入 Google OAuth Client ID 或 GAS 网址');
         return;
       }
       appState.settings.googleClientId = clientId;
@@ -1657,15 +1900,16 @@
       }
     }
 
-    // Smart Two-Way Merge helper so Mobile and Desktop never overwrite each other's notes
+    // FIXED HARD BUG #1: Real Conflict Interception in mergeRemoteAndLocalData!
     function mergeRemoteAndLocalData(remoteData) {
-      if (!remoteData || typeof remoteData !== 'object') return false;
+      if (!remoteData || typeof remoteData !== 'object') return { pulledNew: false, hasConflict: false };
       let hasNewChangesFromRemote = false;
+      let detectedConflict = false;
 
       const mergedDeletedIds = Array.from(new Set([...(appState.deletedIds || []), ...(remoteData.deletedIds || [])]));
       appState.deletedIds = mergedDeletedIds;
 
-      // 1. Merge Notes by ID and updatedAt
+      // 1. Merge Notes with Real Dirty-State Conflict Detection
       if (Array.isArray(remoteData.notes)) {
         const localMap = new Map();
         appState.notes.forEach(n => localMap.set(n.id, n));
@@ -1674,14 +1918,42 @@
           if (!rNote || !rNote.id || mergedDeletedIds.includes(rNote.id)) return;
           const lNote = localMap.get(rNote.id);
           if (!lNote) {
-            // New note created on the other device!
             localMap.set(rNote.id, { ...rNote, isDirty: false });
             hasNewChangesFromRemote = true;
           } else {
             const rTime = rNote.updatedAt || 0;
             const lTime = lNote.updatedAt || 0;
-            if (rTime > lTime) {
-              // Remote device has a newer edit of this note
+            const contentDiffers = (rNote.content || '').trim() !== (lNote.content || '').trim();
+
+            // Check if BOTH local note has unsynced edits (isDirty === true) AND remote note has different content/timestamp!
+            if (lNote.isDirty === true && rTime !== lTime && contentDiffers) {
+              const policy = appState.syncConfig.conflictPolicy || 'ask';
+              if (policy === 'ask') {
+                // Push into real conflicts queue & block silent overwrite!
+                const alreadyQueued = appState.conflicts.some(c => c.noteId === lNote.id);
+                if (!alreadyQueued) {
+                  appState.conflicts.push({
+                    noteId: lNote.id,
+                    noteTitle: lNote.title || rNote.title || '未命名笔记',
+                    localRev: lNote.localRev || 2,
+                    remoteRev: rNote.localRev || 2,
+                    localContent: lNote.content,
+                    remoteContent: rNote.content
+                  });
+                }
+                detectedConflict = true;
+              } else if (policy === 'merge') {
+                lNote.content = rNote.content + '\n\n> 🔄 [自动双栏无损合并 — 本机离线修改段落]：\n' + lNote.content;
+                lNote.updatedAt = Date.now();
+                lNote.localRev = Math.max(lNote.localRev || 1, rNote.localRev || 1) + 1;
+                lNote.isDirty = true;
+                hasNewChangesFromRemote = true;
+              } else if (rTime > lTime) {
+                localMap.set(rNote.id, { ...rNote, isDirty: false });
+                hasNewChangesFromRemote = true;
+              }
+            } else if (!lNote.isDirty && rTime > lTime) {
+              // Local note was not dirty, safe to update to newer remote version
               localMap.set(rNote.id, { ...rNote, isDirty: false });
               hasNewChangesFromRemote = true;
             }
@@ -1693,7 +1965,7 @@
           .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
       }
 
-      // 2. Merge Todos by ID / text
+      // 2. Merge Todos by ID / normalized text
       if (Array.isArray(remoteData.todos)) {
         const todoMap = new Map();
         appState.todos.forEach(t => todoMap.set(t.id, t));
@@ -1702,13 +1974,19 @@
           if (!rTodo || !rTodo.id || mergedDeletedIds.includes(rTodo.id)) return;
           const lTodo = todoMap.get(rTodo.id);
           if (!lTodo) {
-            const sameText = Array.from(todoMap.values()).find(x => x.text === rTodo.text);
+            const sameText = Array.from(todoMap.values()).find(x => normalizeTaskText(x.text) === normalizeTaskText(rTodo.text));
             if (!sameText) {
               todoMap.set(rTodo.id, rTodo);
+              hasNewChangesFromRemote = true;
+            } else if ((rTodo.updatedAt || 0) > (sameText.updatedAt || 0)) {
+              sameText.done = rTodo.done;
+              sameText.updatedAt = rTodo.updatedAt;
+              syncTodoStatusToSourceNote(sameText);
               hasNewChangesFromRemote = true;
             }
           } else if ((rTodo.updatedAt || 0) > (lTodo.updatedAt || 0)) {
             todoMap.set(rTodo.id, rTodo);
+            syncTodoStatusToSourceNote(rTodo);
             hasNewChangesFromRemote = true;
           }
         });
@@ -1720,7 +1998,7 @@
         appState.currentNoteId = appState.notes[0].id;
       }
 
-      return hasNewChangesFromRemote;
+      return { pulledNew: hasNewChangesFromRemote, hasConflict: detectedConflict };
     }
 
     async function pullFromGoogleDriveManual() {
@@ -1733,11 +2011,71 @@
       const dot = document.getElementById('sync-dot');
 
       if (appState.conflicts.length > 0) {
+        updateConflictBadge();
         openConflictModal();
         return;
       }
 
+      const gasUrl = (appState.settings.gasWebAppUrl || '').trim();
       const token = (appState.settings.driveAccessToken || '').trim();
+
+      // Route 1: GAS Permanent Web App Bridge (Zero 1-hour OAuth expiry!)
+      if (gasUrl) {
+        isSyncingNow = true;
+        try {
+          if (statusText) statusText.textContent = 'GAS同步中...';
+          dot.className = 'w-2 h-2 rounded-full bg-indigo-500 animate-ping';
+
+          const getResp = await fetch(gasUrl);
+          if (getResp.ok) {
+            const remoteData = await getResp.json();
+            const mergeRes = mergeRemoteAndLocalData(remoteData);
+            if (mergeRes.hasConflict) {
+              saveState();
+              renderAll();
+              openConflictModal();
+              showToast('⚠️ 检测到多端离线修改冲突，请裁决后再上传');
+              isSyncingNow = false;
+              return;
+            }
+            if (mergeRes.pulledNew) {
+              showToast('☁️ 已通过 GAS 从网盘合并最新笔记！');
+            }
+          }
+
+          const payloadStr = JSON.stringify({
+            updatedAt: Date.now(),
+            notes: appState.notes,
+            todos: appState.todos,
+            deletedIds: appState.deletedIds || []
+          }, null, 2);
+
+          await fetch(gasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: payloadStr
+          });
+
+          appState.notes.filter(n => n.isDirty).forEach(n => {
+            n.driveRev = n.localRev;
+            n.isDirty = false;
+          });
+          saveState();
+          if (statusText) statusText.textContent = '已同步';
+          dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+          addSyncLog(triggerSource, '已通过 GAS 永久通道完成双向同步', 'ok');
+          renderAll();
+        } catch (err) {
+          if (statusText) statusText.textContent = '同步重试';
+          dot.className = 'w-2 h-2 rounded-full bg-amber-500';
+          addSyncLog(triggerSource, 'GAS 同步请求失败，请检查 Web App 权限是否设为所有人(Anyone)', 'warn');
+        } finally {
+          isSyncingNow = false;
+        }
+        return;
+      }
+
+      // Route 2: Direct Google Drive OAuth 2.0 Token
       if (!token) {
         if (statusText) statusText.textContent = '已同步';
         dot.className = 'w-2 h-2 rounded-full bg-amber-500';
@@ -1746,7 +2084,7 @@
             startGoogleOAuthPopup(false);
           } else {
             switchMainView('sync');
-            showToast('请先在「同步与设置」中点击「授权登录」连接 Google Drive');
+            showToast('请先在设置页配置 GAS 永久同步网址 或点击「授权登录」');
           }
         }
         return;
@@ -1757,7 +2095,6 @@
         if (statusText) statusText.textContent = '双向同步中...';
         dot.className = 'w-2 h-2 rounded-full bg-indigo-500 animate-ping';
 
-        // 1. Search for MyUpNote_Sync_Data.json in Drive (ordered by newest first)
         const searchUrl = "https://www.googleapis.com/drive/v3/files?q=name='MyUpNote_Sync_Data.json' and trashed=false&orderBy=modifiedTime desc&fields=files(id,name,modifiedTime)";
         const searchResp = await fetch(searchUrl, {
           headers: { Authorization: 'Bearer ' + token }
@@ -1767,7 +2104,7 @@
           isSyncingNow = false;
           if (statusText) statusText.textContent = '点此续期网盘';
           dot.className = 'w-2 h-2 rounded-full bg-rose-500';
-          addSyncLog(triggerSource, 'Google Drive 1小时安全令牌已到期，请点击顶部「点此续期网盘」或授权登录按钮一键刷新', 'warn');
+          addSyncLog(triggerSource, 'OAuth 1小时令牌已到期（建议在设置中改用 GAS 永久免登录方案）', 'warn');
           if (triggerSource === '手动同步' || notifyIfNoToken) {
             if (appState.settings.googleClientId) {
               showToast('网盘令牌已满1小时，正在为你一键续期...');
@@ -1783,7 +2120,7 @@
         const searchJson = await searchResp.json();
         let existingFileId = null;
 
-        // 2. PULL & MERGE: If file exists on Drive, download its JSON first and merge with local notes!
+        // PULL & MERGE (With Real Conflict Interception!)
         if (searchJson.files && searchJson.files.length > 0) {
           existingFileId = searchJson.files[0].id;
           try {
@@ -1792,8 +2129,16 @@
             });
             if (downloadResp.ok) {
               const remoteData = await downloadResp.json();
-              const pulledNew = mergeRemoteAndLocalData(remoteData);
-              if (pulledNew) {
+              const mergeRes = mergeRemoteAndLocalData(remoteData);
+              if (mergeRes.hasConflict) {
+                saveState();
+                renderAll();
+                openConflictModal();
+                showToast('⚠️ 检测到双端未同步冲突，已拦截自动覆盖，请人工裁决！');
+                isSyncingNow = false;
+                return;
+              }
+              if (mergeRes.pulledNew) {
                 showToast('☁️ 已从 Google Drive 合并另一台设备的最新笔记！');
               }
             }
@@ -1802,7 +2147,7 @@
           }
         }
 
-        // 3. PUSH MERGED STATE BACK TO GOOGLE DRIVE
+        // PUSH MERGED STATE BACK TO GOOGLE DRIVE
         const payloadObj = {
           updatedAt: Date.now(),
           notes: appState.notes,
@@ -1838,7 +2183,7 @@
         });
 
         saveState();
-        if (statusText) statusText.textContent = '已双向同步';
+        if (statusText) statusText.textContent = '已同步';
         dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
         addSyncLog(triggerSource, `双向同步成功（共 ${appState.notes.filter(n => !n.trashed).length} 篇笔记，${appState.todos.length} 条待办）`, 'ok');
         renderAll();
@@ -1942,7 +2287,11 @@
 
     function updateConflictBadge() {
       const btn = document.getElementById('btn-conflict-alert');
+      const countText = document.getElementById('conflict-count-text');
       if (!btn) return;
+      if (countText && appState.conflicts.length > 0) {
+        countText.textContent = `${appState.conflicts.length} 个版本冲突`;
+      }
       btn.classList.toggle('hidden', appState.conflicts.length === 0);
       btn.classList.toggle('flex', appState.conflicts.length > 0);
     }
@@ -1979,15 +2328,18 @@
       saveState();
       closeConflictModal();
       renderAll();
-      showToast('冲突已解决');
+      showToast('冲突已裁决，正在同步最新合并结果到网盘...');
+      executeGoogleDriveSync('冲突裁决后同步');
     }
 
     function updateSyncConfig() {
       const deb = document.getElementById('select-debounce-seconds').value;
+      const pol = document.getElementById('select-conflict-policy');
       appState.syncConfig.debounceSeconds = parseInt(deb, 10);
+      if (pol) appState.syncConfig.conflictPolicy = pol.value;
       document.getElementById('label-debounce-sec').textContent = deb === '0' ? '手动' : deb + '秒';
       saveState();
-      showToast('同步设置已更新');
+      showToast('同步与冲突拦截策略已更新');
     }
 
     function addSyncLog(action, detail, status) {
@@ -2044,10 +2396,56 @@
       triggerFileDownload(`MyUpNote_Backup_${new Date().toISOString().slice(0, 10)}.md`, md, 'text/markdown;charset=utf-8');
     }
 
-    function downloadSelfHtmlFile() {
-      const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-      triggerFileDownload('index.html', fullHtml, 'text/html;charset=utf-8');
-      showToast('已下载最新版 index.html 部署文件！');
+    // FIXED HARD BUG #2: Pristine Source HTML Export (Restores <i data-lucide> & strips dirty DOM state!)
+    async function downloadSelfHtmlFile() {
+      // 1. Try fetching the raw unmutated HTML source if hosted over HTTP/HTTPS
+      if (window.location.protocol.startsWith('http')) {
+        try {
+          const resp = await fetch(window.location.href, { cache: 'no-store' });
+          if (resp.ok) {
+            const rawText = await resp.text();
+            if (rawText.includes('<!DOCTYPE html>') && rawText.includes('STORAGE_KEY')) {
+              triggerFileDownload('index.html', rawText, 'text/html;charset=utf-8');
+              showToast('已下载 100% 纯净版 index.html 源码文件！');
+              return;
+            }
+          }
+        } catch (e) {}
+      }
+
+      // 2. Clean DOM Clone: Restore <svg data-lucide> back to <i data-lucide> and clear runtime containers/inputs
+      const cloneRoot = document.documentElement.cloneNode(true);
+      cloneRoot.querySelectorAll('svg[data-lucide]').forEach(svg => {
+        const iconName = svg.getAttribute('data-lucide');
+        const cls = (svg.getAttribute('class') || '').replace(/lucide\s+lucide-[^\s]+\s*/g, '').trim();
+        const iTag = document.createElement('i');
+        iTag.setAttribute('data-lucide', iconName);
+        if (cls) iTag.setAttribute('class', cls);
+        svg.parentNode.replaceChild(iTag, svg);
+      });
+
+      const dynamicIds = [
+        'note-list-container', 'full-todo-list-container', 'sync-log-list',
+        'toast-container', 'note-md-preview', 'note-tags-container',
+        'sidebar-category-list', 'sidebar-tag-list', 'editor-ai-tool-dock', 'tool-hub-grid'
+      ];
+      dynamicIds.forEach(id => {
+        const el = cloneRoot.querySelector('#' + id);
+        if (el) el.innerHTML = '';
+      });
+
+      const inputIds = ['input-gemini-key', 'input-gas-url', 'input-google-client-id', 'input-drive-token', 'note-title-input', 'note-content-input'];
+      inputIds.forEach(id => {
+        const el = cloneRoot.querySelector('#' + id);
+        if (el) {
+          el.removeAttribute('value');
+          if (el.tagName === 'TEXTAREA') el.textContent = '';
+        }
+      });
+
+      const cleanHtml = '<!DOCTYPE html>\n' + cloneRoot.outerHTML;
+      triggerFileDownload('index.html', cleanHtml, 'text/html;charset=utf-8');
+      showToast('已下载剥离运行时状态的纯净版 index.html！');
     }
 
     function triggerFileDownload(filename, text, mime) {
@@ -2070,7 +2468,7 @@
         id: 'note-' + Date.now(),
         title: '',
         category: appState.currentCategoryFilter || '灵感随笔类',
-        summary: '输入内容后点击右上角「AI 整理」即可自动归类并提取待办。',
+        summary: '输入内容后点击右上角「AI 整理」即可自动归类并提取带绝对日期的待办。',
         content: '',
         tags: [],
         starred: false,
@@ -2295,13 +2693,15 @@
 
     function saveAppSettings() {
       appState.settings.geminiApiKey = document.getElementById('input-gemini-key').value.trim();
+      const gasEl = document.getElementById('input-gas-url');
+      if (gasEl) appState.settings.gasWebAppUrl = gasEl.value.trim();
       const cidEl = document.getElementById('input-google-client-id');
       if (cidEl) appState.settings.googleClientId = cidEl.value.trim();
       appState.settings.driveAccessToken = document.getElementById('input-drive-token').value.trim();
       appState.settings.autoBurnFiles = document.getElementById('toggle-auto-burn').checked;
       saveState();
       showToast('连接与隐私设置已保存到本机浏览器');
-      if (appState.settings.driveAccessToken) {
+      if (appState.settings.gasWebAppUrl || appState.settings.driveAccessToken) {
         executeGoogleDriveSync('保存设置后自动同步');
       }
     }
@@ -2339,7 +2739,7 @@
 
     // Auto-pull when user switches back to tab/window on phone or desktop
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && appState.settings.driveAccessToken && appState.syncConfig.pollInterval !== 'manual') {
+      if (document.visibilityState === 'visible' && (appState.settings.gasWebAppUrl || appState.settings.driveAccessToken) && appState.syncConfig.pollInterval !== 'manual') {
         executeGoogleDriveSync('切回窗口自动同步');
       }
     });
@@ -2347,7 +2747,7 @@
     window.onload = function() {
       loadState();
       renderAll();
-      if (appState.settings.driveAccessToken) {
+      if (appState.settings.gasWebAppUrl || appState.settings.driveAccessToken) {
         executeGoogleDriveSync('启动自动拉取同步');
       }
     };
