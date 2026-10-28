@@ -28,43 +28,42 @@
       border-radius: 9999px;
     }
     /* Clean Markdown Preview Typography */
-    .md-preview h1 { font-size: 1.5rem; font-weight: 700; color: #0f172a; margin: 1rem 0 0.5rem; padding-bottom: 0.3rem; border-bottom: 1px solid #e2e8f0; }
-    .md-preview h2 { font-size: 1.25rem; font-weight: 700; color: #1e293b; margin: 0.9rem 0 0.4rem; }
-    .md-preview h3 { font-size: 1.05rem; font-weight: 600; color: #334155; margin: 0.75rem 0 0.3rem; }
-    .md-preview p { margin: 0.45rem 0; line-height: 1.75; color: #1e293b; }
-    .md-preview ul { list-style-type: disc; padding-left: 1.4rem; margin: 0.4rem 0; }
-    .md-preview ol { list-style-type: decimal; padding-left: 1.4rem; margin: 0.4rem 0; }
-    .md-preview li { margin: 0.25rem 0; line-height: 1.7; }
+    .md-preview h1 { font-size: 1.4rem; font-weight: 700; color: #0f172a; margin: 0.9rem 0 0.45rem; padding-bottom: 0.3rem; border-bottom: 1px solid #e2e8f0; }
+    .md-preview h2 { font-size: 1.2rem; font-weight: 700; color: #1e293b; margin: 0.8rem 0 0.4rem; }
+    .md-preview h3 { font-size: 1.05rem; font-weight: 600; color: #334155; margin: 0.7rem 0 0.3rem; }
+    .md-preview p { margin: 0.45rem 0; line-height: 1.75; color: #1e293b; word-break: break-word; }
+    .md-preview ul { list-style-type: disc; padding-left: 1.35rem; margin: 0.4rem 0; }
+    .md-preview ol { list-style-type: decimal; padding-left: 1.35rem; margin: 0.4rem 0; }
+    .md-preview li { margin: 0.25rem 0; line-height: 1.7; word-break: break-word; }
     .md-preview blockquote { border-left: 3px solid #6366f1; background: #f8fafc; padding: 0.5rem 0.85rem; margin: 0.6rem 0; color: #475569; border-radius: 0 0.5rem 0.5rem 0; }
-    .md-preview code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background: #f1f5f9; color: #db2777; padding: 0.15rem 0.35rem; border-radius: 0.25rem; font-size: 0.875em; }
+    .md-preview code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; background: #f1f5f9; color: #db2777; padding: 0.15rem 0.35rem; border-radius: 0.25rem; font-size: 0.875em; word-break: break-all; }
     .md-preview pre { background: #0f172a; color: #f8fafc; padding: 0.85rem 1rem; border-radius: 0.75rem; overflow-x: auto; margin: 0.65rem 0; }
     .md-preview pre code { background: transparent; color: inherit; padding: 0; }
     .md-preview hr { border: 0; border-top: 1px solid #e2e8f0; margin: 1rem 0; }
   </style>
 </head>
-<body class="h-screen flex flex-col">
+<body class="h-screen flex flex-col w-screen overflow-x-hidden">
 
-  <!-- Minimalist Top Bar (Only 3 Views + 2 Core Actions) -->
-  <header class="h-12 bg-white border-b border-slate-200 px-3 sm:px-4 flex items-center justify-between shrink-0 z-20">
-    <!-- Left: Toggle Sidebar Drawer + App Title -->
-    <div class="flex items-center gap-2">
-      <button id="btn-mobile-menu" onclick="toggleNoteDrawer()" class="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 flex items-center gap-1.5 text-xs font-medium" title="展开/收起笔记列表 (全屏专注写作)">
-        <i data-lucide="panel-left" class="w-4 h-4"></i>
-        <span class="hidden sm:inline">笔记目录</span>
+  <!-- Portrait-Friendly Top Bar (Fits 360px Mobile Portrait & Desktop cleanly) -->
+  <header class="h-12 bg-white border-b border-slate-200 px-2.5 sm:px-4 flex items-center justify-between gap-1 shrink-0 z-20">
+    <!-- Left: Toggle Sidebar Drawer + Visible Sync Button on Both Mobile & Desktop -->
+    <div class="flex items-center gap-1.5 min-w-0">
+      <button id="btn-mobile-menu" onclick="toggleNoteDrawer()" class="px-2 py-1.5 rounded-lg text-slate-700 bg-slate-100 hover:bg-slate-200 flex items-center gap-1 text-xs font-semibold shrink-0" title="展开/收起笔记列表">
+        <i data-lucide="panel-left" class="w-4 h-4 text-indigo-600"></i>
+        <span>笔记目录</span>
       </button>
-      <div class="h-4 w-px bg-slate-200 hidden sm:block"></div>
-      <span class="font-bold text-slate-800 text-sm tracking-tight hidden sm:inline">MyUpNote</span>
-      <span id="sync-dot" class="w-2 h-2 rounded-full bg-emerald-500" title="Google Drive 同步状态"></span>
-      <button id="btn-sync-status" onclick="triggerManualSync()" class="text-[11px] text-slate-400 hover:text-slate-700 hidden md:inline">
-        <span id="sync-status-text">已同步</span>
+      <span class="font-bold text-slate-800 text-sm tracking-tight hidden lg:inline ml-1">MyUpNote</span>
+      <button id="btn-sync-status" onclick="triggerManualSync()" class="px-2 py-1 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200/80 flex items-center gap-1.5 text-[11px] text-slate-600 font-medium shrink-0" title="点击立即与 Google Drive 双向同步">
+        <span id="sync-dot" class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+        <span id="sync-status-text" class="truncate max-w-[72px] sm:max-w-none">已同步</span>
       </button>
-      <button id="btn-conflict-alert" onclick="openConflictModal()" class="hidden items-center gap-1 px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-300 text-[11px] font-semibold">
+      <button id="btn-conflict-alert" onclick="openConflictModal()" class="hidden items-center gap-1 px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-300 text-[11px] font-semibold shrink-0">
         <span id="conflict-count-text">1 个版本冲突</span>
       </button>
     </div>
 
     <!-- Center: Clean 3-Tab Switcher (Desktop) -->
-    <div class="hidden md:flex items-center bg-slate-100 p-0.5 rounded-lg">
+    <div class="hidden md:flex items-center bg-slate-100 p-0.5 rounded-lg shrink-0">
       <button id="tab-btn-notes" onclick="switchMainView('notes')" class="px-3.5 py-1 rounded-md text-xs font-semibold bg-white text-slate-900 shadow-2xs">
         ✍️ 写笔记
       </button>
@@ -78,13 +77,13 @@
       <button id="tab-btn-tools" onclick="switchMainView('tools')" class="hidden">AI 工具插槽中心 <span id="badge-tool-count">2 已挂载 / 4 待接入</span></button>
     </div>
 
-    <!-- Right: Only 2 Primary High-Frequency Actions -->
-    <div class="flex items-center gap-1.5">
-      <button id="btn-header-snap" onclick="openHandwritingSnapModal()" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center gap-1 transition-all" title="拍照或上传手写笔记自动转文字">
+    <!-- Right: 2 Primary High-Frequency Actions (Compact on Mobile Portrait) -->
+    <div class="flex items-center gap-1 sm:gap-1.5 shrink-0">
+      <button id="btn-header-snap" onclick="openHandwritingSnapModal()" class="px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/70 flex items-center gap-1 transition-all shrink-0" title="手机拍照或从相册选图转文字">
         <i data-lucide="camera" class="w-3.5 h-3.5 text-indigo-600"></i>
         <span>拍手写</span>
       </button>
-      <button id="btn-reclassify-current" onclick="autoClassifyAndSummarizeCurrentNote()" class="px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-2xs flex items-center gap-1 transition-all" title="一键对当前笔记自动分类、生成摘要并提取待办">
+      <button id="btn-reclassify-current" onclick="autoClassifyAndSummarizeCurrentNote()" class="px-2 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-2xs flex items-center gap-1 transition-all shrink-0" title="一键对当前笔记自动分类、生成摘要并提取待办">
         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
         <span>AI 整理</span>
       </button>
@@ -92,13 +91,13 @@
   </header>
 
   <!-- Main Workspace Container -->
-  <div class="flex-1 flex overflow-hidden relative">
+  <div class="flex-1 flex overflow-hidden relative w-full">
 
-    <!-- Collapsible Left Note List Drawer (260px on Desktop, Slide-over on Mobile) -->
-    <aside id="left-sidebar" class="w-72 bg-slate-50 border-r border-slate-200 flex flex-col shrink-0 transition-all duration-200 absolute md:static inset-y-0 left-0 z-30 -translate-x-full md:translate-x-0">
+    <!-- Collapsible Left Note List Drawer (280px on Desktop, Slide-over on Mobile) -->
+    <aside id="left-sidebar" class="w-72 max-w-[82vw] bg-slate-50 border-r border-slate-200 flex flex-col shrink-0 transition-all duration-200 absolute md:static inset-y-0 left-0 z-30 -translate-x-full md:translate-x-0">
       <!-- Search & New Note Row -->
       <div class="p-2.5 border-b border-slate-200 bg-white flex items-center gap-1.5">
-        <div class="relative flex-1">
+        <div class="relative flex-1 min-w-0">
           <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
           <input id="search-input" oninput="handleSearchInput(this.value)" type="text" placeholder="搜索笔记..." class="w-full pl-8 pr-2.5 py-1.5 text-xs bg-slate-100 rounded-lg focus:bg-white focus:ring-1 focus:ring-indigo-500 focus:outline-none" />
         </div>
@@ -133,120 +132,125 @@
     <!-- Mobile Backdrop when Note Drawer is open -->
     <div id="mobile-backdrop" onclick="toggleNoteDrawer()" class="fixed inset-0 bg-slate-900/40 z-20 hidden md:hidden"></div>
 
-    <!-- VIEW 1: SPACIOUS NOTE EDITOR & MARKDOWN PREVIEW (Takes 85%+ of Screen!) -->
-    <main id="view-notes" class="flex-1 flex flex-col bg-white overflow-hidden">
+    <!-- VIEW 1: SPACIOUS NOTE EDITOR & MARKDOWN PREVIEW (100% Portrait-Ready on Mobile!) -->
+    <main id="view-notes" class="flex-1 flex flex-col bg-white overflow-hidden min-w-0 w-full">
 
-      <!-- Active AI Processing Banner (Only visible while AI is working) -->
-      <div id="ai-action-banner" class="hidden px-4 py-2 bg-indigo-950 text-white items-center justify-between text-xs shrink-0">
-        <div class="flex items-center gap-2">
-          <span id="ai-banner-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-          <span id="ai-banner-text">正在通过 Gemini Flash-Lite 智能整理...</span>
+      <!-- Active AI Processing Banner -->
+      <div id="ai-action-banner" class="hidden px-3 sm:px-4 py-2 bg-indigo-950 text-white items-center justify-between text-xs shrink-0">
+        <div class="flex items-center gap-2 min-w-0">
+          <span id="ai-banner-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-ping shrink-0"></span>
+          <span id="ai-banner-text" class="truncate">正在通过 Gemini Flash-Lite 智能整理...</span>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 shrink-0">
           <button id="btn-stop-recording" onclick="stopLiveVoiceRecording()" class="hidden px-2 py-0.5 bg-rose-600 text-white rounded text-xs">完成录音并生成笔记</button>
           <button id="btn-cancel-ai-banner" onclick="hideAiBanner()" class="text-slate-300 hover:text-white">关闭</button>
         </div>
       </div>
 
-      <!-- Compact Single-Row Title + Category + Markdown Mode Switcher -->
-      <div class="px-4 sm:px-8 pt-3 pb-2 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 shrink-0">
-        <div class="flex items-center gap-2 flex-1 min-w-[200px]">
-          <select id="note-category-select" onchange="handleCategoryChange(this.value)" class="text-xs font-semibold px-2 py-1 rounded-md border border-slate-200 bg-slate-50 text-slate-700 cursor-pointer focus:outline-none">
+      <!-- Portrait-Friendly Header: 2 clean rows on Mobile Portrait, 1 row on Desktop -->
+      <div class="px-3 sm:px-8 pt-2.5 pb-2 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shrink-0">
+        <!-- Row 1 on Mobile: Full-width Title Input -->
+        <div class="flex items-center gap-2 flex-1 min-w-0 w-full">
+          <select id="note-category-select" onchange="handleCategoryChange(this.value)" class="hidden sm:inline-block text-xs font-semibold px-2 py-1 rounded-md border border-slate-200 bg-slate-50 text-slate-700 cursor-pointer focus:outline-none shrink-0">
             <option value="客户情报类">💼 客户情报</option>
             <option value="会议纪要类">📋 会议纪要</option>
             <option value="待办类">✅ 待办清单</option>
             <option value="灵感随笔类">💡 随笔记录</option>
           </select>
-          <input id="note-title-input" oninput="handleNoteEdit()" type="text" placeholder="无标题笔记..." class="text-lg sm:text-xl font-bold text-slate-900 bg-transparent focus:outline-none flex-1" />
+          <input id="note-title-input" oninput="handleNoteEdit()" type="text" placeholder="输入笔记标题..." class="text-base sm:text-xl font-bold text-slate-900 bg-transparent focus:outline-none flex-1 min-w-0 w-full" />
         </div>
 
-        <!-- Edit / Preview Mode Toggle + Star & Delete -->
-        <div class="flex items-center gap-1">
-          <div class="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/70 mr-1">
-            <button id="btn-mode-edit" onclick="setEditorMode('edit')" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-white text-slate-900 shadow-2xs">
-              ✍️ 编辑
+        <!-- Row 2 on Mobile: Mobile Category + Edit/Preview Toggle + Star & Delete (All visible in portrait!) -->
+        <div class="flex items-center justify-between sm:justify-end gap-1.5 w-full sm:w-auto shrink-0">
+          <select id="note-category-select-mobile" onchange="handleCategoryChange(this.value)" class="sm:hidden text-xs font-semibold px-2 py-1 rounded-md border border-slate-200 bg-slate-50 text-slate-700 focus:outline-none">
+            <option value="客户情报类">💼 客户情报</option>
+            <option value="会议纪要类">📋 会议纪要</option>
+            <option value="待办类">✅ 待办清单</option>
+            <option value="灵感随笔类">💡 随笔记录</option>
+          </select>
+
+          <div class="flex items-center gap-1">
+            <div class="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/70">
+              <button id="btn-mode-edit" onclick="setEditorMode('edit')" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-white text-slate-900 shadow-2xs">
+                ✍️ 编辑
+              </button>
+              <button id="btn-mode-preview" onclick="setEditorMode('preview')" class="px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900">
+                📖 阅读预览
+              </button>
+              <button id="btn-mode-split" onclick="setEditorMode('split')" class="hidden lg:inline-block px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900">
+                🌗 双栏
+              </button>
+            </div>
+            <button id="btn-toggle-star" onclick="toggleCurrentNoteStar()" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100" title="星标收藏">
+              <i data-lucide="star" class="w-4 h-4"></i>
             </button>
-            <button id="btn-mode-preview" onclick="setEditorMode('preview')" class="px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900">
-              📖 阅读预览
-            </button>
-            <button id="btn-mode-split" onclick="setEditorMode('split')" class="hidden lg:inline-block px-2.5 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900">
-              🌗 双栏
+            <button id="btn-delete-note" onclick="deleteCurrentNote()" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50" title="移入回收站">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </div>
-          <button id="btn-toggle-star" onclick="toggleCurrentNoteStar()" class="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100" title="星标收藏">
-            <i data-lucide="star" class="w-4 h-4"></i>
-          </button>
-          <button id="btn-delete-note" onclick="deleteCurrentNote()" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50" title="移入回收站">
-            <i data-lucide="trash-2" class="w-4 h-4"></i>
-          </button>
         </div>
       </div>
 
-      <!-- Sleek 1-Line Collapsible AI Summary Bar (Never eats typing space unless clicked!) -->
-      <div id="note-summary-card" class="px-4 sm:px-8 py-1.5 bg-indigo-50/50 border-b border-indigo-100/80 shrink-0">
+      <!-- Sleek 1-Line Collapsible AI Summary Bar -->
+      <div id="note-summary-card" class="px-3 sm:px-8 py-1.5 bg-indigo-50/50 border-b border-indigo-100/80 shrink-0">
         <div onclick="toggleSummaryFold()" class="flex items-center justify-between gap-2 cursor-pointer select-none">
-          <div class="flex items-center gap-2 min-w-0 flex-1">
+          <div class="flex items-center gap-1.5 min-w-0 flex-1">
             <span id="summary-category-pill" class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-indigo-600 text-white shrink-0">AI 摘要</span>
             <span id="note-summary-one-line" class="text-xs text-slate-600 truncate">点击展开查看 AI 提炼的重点摘要...</span>
           </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <span id="summary-fold-label" class="text-[11px] text-indigo-600 font-medium">展开 ▾</span>
-          </div>
+          <span id="summary-fold-label" class="text-[11px] text-indigo-600 font-medium shrink-0">展开 ▾</span>
         </div>
         <div id="note-summary-expanded" class="hidden pt-2 pb-1 mt-1.5 border-t border-indigo-100/80 text-xs text-slate-700 whitespace-pre-line leading-relaxed">
           <div id="note-summary-text"></div>
         </div>
       </div>
 
-      <!-- Lightweight Markdown Formatting Bar (Clean, single line, easy on mobile & desktop) -->
-      <div id="md-toolbar" class="px-4 sm:px-8 py-1.5 bg-slate-50/70 border-b border-slate-100 flex items-center justify-between gap-2 overflow-x-auto custom-scroll shrink-0">
-        <div class="flex items-center gap-1 text-xs text-slate-600 shrink-0">
-          <button type="button" onclick="insertMdSyntax('## ', '')" class="px-2 py-1 rounded hover:bg-slate-200/70 font-bold" title="插入二级标题">H2</button>
-          <button type="button" onclick="insertMdSyntax('### ', '')" class="px-2 py-1 rounded hover:bg-slate-200/70 font-semibold" title="插入三级标题">H3</button>
-          <button type="button" onclick="insertMdSyntax('**', '**')" class="px-2 py-1 rounded hover:bg-slate-200/70 font-bold" title="加粗文字">B</button>
-          <button type="button" onclick="insertMdSyntax('- ', '')" class="px-2 py-1 rounded hover:bg-slate-200/70" title="无序列表">• 列表</button>
-          <button type="button" onclick="insertMdSyntax('- [ ] ', '')" class="px-2 py-1 rounded hover:bg-slate-200/70 text-emerald-700 font-medium" title="插入待办勾选框">☑ 待办</button>
-          <button type="button" onclick="insertMdSyntax('> ', '')" class="px-2 py-1 rounded hover:bg-slate-200/70" title="引用段落">❝ 引用</button>
-          <button type="button" onclick="insertMdSyntax('`', '`')" class="px-2 py-1 rounded hover:bg-slate-200/70 font-mono" title="行内代码">&lt;/&gt;</button>
-          <div class="h-3.5 w-px bg-slate-200 mx-1"></div>
+      <!-- Wrapping Markdown Formatting Bar (Wraps cleanly on Portrait Phone — no horizontal rotation needed!) -->
+      <div id="md-toolbar" class="px-3 sm:px-8 py-1.5 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-y-1 gap-x-2 shrink-0">
+        <div class="flex flex-wrap items-center gap-1 text-xs text-slate-700">
+          <button type="button" onclick="insertMdSyntax('## ', '')" class="px-2 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70 font-bold" title="二级标题">H2</button>
+          <button type="button" onclick="insertMdSyntax('### ', '')" class="px-2 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70 font-semibold" title="三级标题">H3</button>
+          <button type="button" onclick="insertMdSyntax('**', '**')" class="px-2 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70 font-bold" title="加粗">B</button>
+          <button type="button" onclick="insertMdSyntax('- ', '')" class="px-2 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70" title="列表">• 列表</button>
+          <button type="button" onclick="insertMdSyntax('- [ ] ', '')" class="px-2 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70 text-emerald-700 font-medium" title="待办勾选框">☑ 待办</button>
+          <button type="button" onclick="insertMdSyntax('> ', '')" class="px-2 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70" title="引用">❝ 引用</button>
+          <button type="button" onclick="insertMdSyntax('`', '`')" class="px-1.5 py-1 rounded bg-white sm:bg-transparent border sm:border-0 border-slate-200/80 hover:bg-slate-200/70 font-mono" title="代码">&lt;/&gt;</button>
           <!-- Inline Tag Input -->
-          <div id="note-tags-container" class="flex items-center gap-1"></div>
-          <input id="input-add-tag" onkeydown="handleTagKeydown(event)" type="text" placeholder="+标签回车" class="text-xs bg-transparent focus:outline-none px-1 py-0.5 w-20 text-slate-500" />
+          <div id="note-tags-container" class="flex flex-wrap items-center gap-1"></div>
+          <input id="input-add-tag" onkeydown="handleTagKeydown(event)" type="text" placeholder="+标签回车" class="text-xs bg-transparent focus:outline-none px-1 py-0.5 w-16 text-slate-500" />
         </div>
 
-        <div class="flex items-center gap-2 text-[11px] text-slate-400 shrink-0">
+        <div class="flex items-center gap-2 text-[11px] text-slate-400 shrink-0 ml-auto">
           <span id="char-count-info">0 字</span>
           <span id="note-updated-info" class="hidden sm:inline">刚刚</span>
         </div>
       </div>
 
-      <!-- HUGE WRITING & MARKDOWN READING CANVAS (Fills all remaining height!) -->
-      <div class="flex-1 flex overflow-hidden relative">
-        <!-- Raw Markdown Textarea (Large, comfortable typography & generous padding) -->
+      <!-- HUGE WRITING & MARKDOWN READING CANVAS -->
+      <div class="flex-1 flex overflow-hidden relative w-full">
         <textarea
           id="note-content-input"
           oninput="handleNoteEdit()"
-          placeholder="在这里直接输入笔记（支持 # 标题、**粗体**、- 列表、- [ ] 待办框等 Markdown 语法），或者点右上角「拍手写」导入纸质笔记..."
-          class="w-full h-full flex-1 resize-none border-0 px-4 sm:px-8 py-5 focus:outline-none text-base sm:text-[17px] text-slate-800 leading-8 custom-scroll bg-white font-normal"
+          placeholder="在这里直接输入笔记（支持 # 标题、**粗体**、- 列表、- [ ] 待办框等 Markdown 语法），或者点右上角「拍手写」拍照/选相册图片导入..."
+          class="w-full h-full flex-1 resize-none border-0 px-3.5 sm:px-8 py-4 sm:py-5 focus:outline-none text-base sm:text-[17px] text-slate-800 leading-7 sm:leading-8 custom-scroll bg-white font-normal"
         ></textarea>
 
-        <!-- Rendered Markdown View (Hidden in pure 'edit' mode, shown in 'preview' or 'split' mode) -->
         <div
           id="note-md-preview"
-          class="hidden w-full h-full flex-1 overflow-y-auto custom-scroll px-4 sm:px-8 py-5 bg-slate-50/30 border-l border-slate-200 md-preview text-base"
+          class="hidden w-full h-full flex-1 overflow-y-auto custom-scroll px-3.5 sm:px-8 py-4 sm:py-5 bg-slate-50/30 border-l border-slate-200 md-preview text-base"
         ></div>
       </div>
     </main>
 
     <!-- VIEW 2: DEDICATED TODO LIST CENTER (我的待办清单) -->
-    <section id="view-todos" class="hidden flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 bg-slate-50">
-      <div class="max-w-3xl mx-auto space-y-4">
-        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between gap-4">
+    <section id="view-todos" class="hidden flex-1 overflow-y-auto custom-scroll p-3 sm:p-6 bg-slate-50 w-full">
+      <div class="max-w-3xl mx-auto space-y-3 sm:space-y-4">
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs flex items-center justify-between gap-3">
           <div>
             <h2 class="text-base sm:text-lg font-bold text-slate-900">✅ 我的待办清单 (<span id="todo-pending-count-title">0</span>)</h2>
             <p class="text-xs text-slate-500 mt-0.5">手写拍照或笔记里识别出的待办会自动汇入此处，点击「🔗 原笔记」可跳回出处。</p>
           </div>
-          <button id="btn-clear-completed-todos" onclick="clearCompletedTodos()" class="text-xs text-slate-500 hover:text-rose-600 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50">
+          <button id="btn-clear-completed-todos" onclick="clearCompletedTodos()" class="text-xs text-slate-500 hover:text-rose-600 px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 shrink-0">
             清理已完成
           </button>
         </div>
@@ -259,7 +263,7 @@
             <option value="medium" selected>⚡ 普通</option>
             <option value="low">🌱 低优</option>
           </select>
-          <input id="full-todo-due" type="text" placeholder="期限 (如: 周五)" class="w-28 text-xs px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl" />
+          <input id="full-todo-due" type="text" placeholder="期限 (如: 周五)" class="w-24 sm:w-28 text-xs px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl" />
           <button id="btn-full-add-todo" onclick="addManualTodo('full-todo-input')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl">
             + 添加
           </button>
@@ -271,33 +275,35 @@
       </div>
     </section>
 
-    <!-- VIEW 3: CONSOLIDATED SETTINGS, BACKUP, DRIVE SYNC & ADVANCED AI TOOLS -->
-    <section id="view-sync" class="hidden flex-1 overflow-y-auto custom-scroll p-4 sm:p-6 bg-slate-50">
-      <div class="max-w-4xl mx-auto space-y-5">
+    <!-- VIEW 3: CONSOLIDATED SETTINGS, BACKUP & DRIVE TWO-WAY SYNC -->
+    <section id="view-sync" class="hidden flex-1 overflow-y-auto custom-scroll p-3 sm:p-6 bg-slate-50 w-full">
+      <div class="max-w-4xl mx-auto space-y-4 sm:space-y-5">
 
-        <!-- One-Click Download Source File Banner for Easy Device Deployment -->
+        <!-- One-Click Download Source File Banner -->
         <div class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white p-4 sm:p-5 rounded-2xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 class="text-sm sm:text-base font-bold flex items-center gap-2">
               <i data-lucide="rocket" class="w-4 h-4"></i>
-              设备部署包下载（单文件 index.html）
+              设备部署包下载（单文件 index.html — 含双向同步与手机竖屏/相册修复）
             </h2>
             <p class="text-xs text-indigo-100 mt-0.5">
-              点击右侧按钮即可直接下载本程序完整源码文件（自动命名为 <code class="bg-white/20 px-1.5 py-0.5 rounded">index.html</code>），直接双击或上传到 Cloudflare Pages / GitHub Pages 即可在手机和电脑使用。
+              点击右侧按钮即可下载最新版 <code class="bg-white/20 px-1.5 py-0.5 rounded">index.html</code>，上传覆盖到 GitHub 仓库即可更新手机和电脑端。
             </p>
           </div>
-          <button id="btn-download-app-html" onclick="downloadSelfHtmlFile()" class="shrink-0 px-4 py-2.5 bg-white text-indigo-700 hover:bg-indigo-50 text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5">
+          <button id="btn-download-app-html" onclick="downloadSelfHtmlFile()" class="shrink-0 px-4 py-2.5 bg-white text-indigo-700 hover:bg-indigo-50 text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-1.5">
             <i data-lucide="download" class="w-4 h-4"></i>
             下载 index.html 部署文件
           </button>
         </div>
 
-        <!-- Card 1: API Key & Local Hard Drive Backup (Most Important Settings) -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
-          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <!-- Card 1: API Key, Local Storage Security Notice & Hard Drive Backup -->
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div>
-              <h2 class="text-base font-bold text-slate-900">🔑 1. 核心连接与电脑本地硬盘备份</h2>
-              <p class="text-xs text-slate-500 mt-0.5">配置你的 Gemini API 密钥，以及将笔记实时备份到电脑本地硬盘文件夹</p>
+              <h2 class="text-base font-bold text-slate-900">🔑 1. 核心连接与本地安全存储</h2>
+              <p class="text-xs text-emerald-700 font-medium mt-0.5">
+                🛡️ 隐私承诺：你填写的 API Key 与 Client ID <strong>100% 仅保存在当前设备浏览器的本地存储 (localStorage)</strong>，绝不会上传到 GitHub 或网盘公开文件。
+              </p>
             </div>
             <button id="btn-export-single-md" onclick="exportCurrentNoteMarkdown()" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 border border-slate-200">
               存到本地 (.md)
@@ -307,8 +313,8 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <div class="space-y-3">
               <div>
-                <label class="font-bold text-slate-700 block mb-1">Gemini API Key (绑定 Paid Tier 享零数据训练)</label>
-                <input id="input-gemini-key" type="password" placeholder="AIzaSy... (填入后即刻接管手写识别与AI整理)" class="w-full px-3 py-2 border border-slate-300 rounded-lg font-mono focus:outline-none focus:border-indigo-500" />
+                <label class="font-bold text-slate-700 block mb-1">Gemini API Key (保存在本机浏览器，永久记住)</label>
+                <input id="input-gemini-key" type="password" placeholder="AIzaSy... (填入后自动保存在本机)" class="w-full px-3 py-2 border border-slate-300 rounded-lg font-mono focus:outline-none focus:border-indigo-500" />
               </div>
               <div>
                 <label class="font-bold text-slate-700 block mb-1">默认 AI 模型引擎</label>
@@ -319,17 +325,17 @@
                 </select>
               </div>
               <div>
-                <label class="font-bold text-slate-700 block mb-1">Google OAuth Client ID (推荐，用于一键弹窗登录网盘)</label>
+                <label class="font-bold text-slate-700 block mb-1">Google OAuth Client ID (永久保存在本机，点右侧一键登录/续期)</label>
                 <div class="flex gap-1.5">
-                  <input id="input-google-client-id" type="text" placeholder="xxxx.apps.googleusercontent.com" class="flex-1 px-3 py-2 border border-slate-300 rounded-lg font-mono focus:outline-none focus:border-indigo-500" />
+                  <input id="input-google-client-id" type="text" placeholder="xxxx.apps.googleusercontent.com" class="flex-1 min-w-0 px-3 py-2 border border-slate-300 rounded-lg font-mono focus:outline-none focus:border-indigo-500" />
                   <button id="btn-google-oauth-login" onclick="startGoogleOAuthPopup()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg shrink-0">
                     授权登录
                   </button>
                 </div>
               </div>
               <div>
-                <label class="font-bold text-slate-700 block mb-1">或直接填入 Google Drive Access Token</label>
-                <input id="input-drive-token" type="password" placeholder="ya29.a0... (授权登录后会自动填入此处)" class="w-full px-3 py-2 border border-slate-300 rounded-lg font-mono focus:outline-none focus:border-indigo-500" />
+                <label class="font-bold text-slate-700 block mb-1">Google Drive Access Token (授权后自动填入，有效期1小时)</label>
+                <input id="input-drive-token" type="password" placeholder="ya29.a0... (授权登录后自动填入并触发双向同步)" class="w-full px-3 py-2 border border-slate-300 rounded-lg font-mono focus:outline-none focus:border-indigo-500" />
               </div>
               <div class="flex items-center justify-between pt-1">
                 <span id="privacy-burn-status" class="text-emerald-700 font-medium">🔒 手写原图云端缓存阅后即焚已开启</span>
@@ -340,16 +346,21 @@
               </button>
             </div>
 
-            <!-- Local Hard Drive Backup Box -->
+            <!-- Local Hard Drive Backup & Storage Inspector Box -->
             <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-3">
-              <div class="space-y-1.5">
+              <div class="space-y-2">
                 <div class="flex items-center justify-between">
                   <span class="font-bold text-slate-800">💻 电脑本地硬盘自动备份</span>
                   <span id="local-disk-badge" class="text-[10px] px-2 py-0.5 rounded bg-slate-200 text-slate-700">未绑定目录</span>
                 </div>
                 <p id="local-disk-desc" class="text-slate-500 leading-relaxed">
-                  在电脑 Chrome/Edge 上点击「绑定文件夹」，以后每篇笔记都会实时在你电脑硬盘里生成真实的 `.md` 文件；也可以随时点击「打包导出」。
+                  在电脑 Chrome/Edge 上点击「绑定文件夹」，每篇笔记都会实时在你电脑硬盘里生成真实的 `.md` 文件；也可以随时点击「打包导出」。
                 </p>
+                <div class="p-2.5 rounded-lg bg-white border border-slate-200/80 text-[11px] text-slate-600 space-y-1">
+                  <div class="font-semibold text-slate-800">📍 本机密钥保存位置说明：</div>
+                  <div>• 存储路径：浏览器 <code class="text-pink-600">localStorage['my_upnote_personal_v3']</code></div>
+                  <div>• 查看方法：电脑按 <code class="bg-slate-100 px-1 rounded">F12</code> → <code class="bg-slate-100 px-1 rounded">Application</code> → <code class="bg-slate-100 px-1 rounded">Local Storage</code></div>
+                </div>
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <button id="btn-bind-local-folder" onclick="bindLocalHardDriveFolder()" class="py-2 px-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold">
@@ -363,14 +374,17 @@
           </div>
         </div>
 
-        <!-- Card 2: Google Drive Sync & Conflict Control -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+        <!-- Card 2: Google Drive Two-Way Sync & Conflict Control -->
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div>
-              <h2 class="text-base font-bold text-slate-900">☁️ 2. Google Drive 同步频率与防冲突设置</h2>
+              <h2 class="text-base font-bold text-slate-900">☁️ 2. Google Drive 手机+电脑双向同步控制</h2>
               <p class="text-xs text-slate-500 mt-0.5">当前防抖间隔：<strong id="label-debounce-sec">15秒</strong> · <span id="note-rev-info">本地 v1 · Drive v1</span></p>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <button id="btn-pull-drive-now" onclick="pullFromGoogleDriveManual()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-semibold rounded-xl">
+                ⬇️ 从网盘拉取最新
+              </button>
               <button id="btn-sync-now-panel" onclick="triggerManualSync()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl">
                 立即执行同步
               </button>
@@ -393,29 +407,35 @@
             <div>
               <label class="font-bold text-slate-700 block mb-1">后台自动拉取频率</label>
               <select id="select-poll-interval" onchange="updateSyncConfig()" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg font-medium">
-                <option value="focus" selected>切回窗口立即检查 + 5分钟轮询</option>
-                <option value="15m">切回窗口立即检查 + 15分钟轮询</option>
+                <option value="focus" selected>切回窗口立即拉取 + 5分钟轮询</option>
+                <option value="15m">切回窗口立即拉取 + 15分钟轮询</option>
                 <option value="manual">仅在启动与手动时拉取</option>
               </select>
             </div>
             <div>
               <label class="font-bold text-slate-700 block mb-1">多端并发冲突策略</label>
               <select id="select-conflict-policy" onchange="updateSyncConfig()" class="w-full px-2.5 py-2 bg-slate-50 border border-slate-300 rounded-lg font-medium">
-                <option value="ask" selected>弹窗人工比对裁决 (推荐)</option>
+                <option value="ask" selected>按最新修改时间智能合并 (推荐)</option>
                 <option value="merge">自动双栏无损合并</option>
                 <option value="newest">按最新时间自动覆盖</option>
               </select>
             </div>
           </div>
 
+          <!-- Sync Activity Log (Always visible so user can verify real Drive sync!) -->
+          <div class="space-y-1.5">
+            <div class="text-xs font-bold text-slate-700">📋 实时网盘同步状态日志：</div>
+            <div id="sync-log-list" class="divide-y divide-slate-100 max-h-36 overflow-y-auto custom-scroll border border-slate-200 rounded-xl bg-slate-50/60"></div>
+          </div>
+
           <!-- Collapsible Advanced Diagnostics & Custom AI Tools -->
           <details class="pt-2 border-t border-slate-100 text-xs">
             <summary class="cursor-pointer font-semibold text-slate-600 hover:text-indigo-600 py-1">
-              🛠️ 展开高级选项（自定义 AI 工具插槽管理 / 同步日志 / 终端模拟器）
+              🛠️ 展开高级选项（自定义 AI 工具插槽管理 / 终端模拟器）
             </summary>
             <div class="pt-3 space-y-4">
               <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                   <span>当前模拟终端: <strong id="current-device-label">💻 电脑端 (Desktop)</strong></span>
                   <button id="btn-sim-desktop" onclick="switchSimulatedDevice('desktop')" class="px-2 py-1 rounded bg-indigo-600 text-white">电脑端</button>
                   <button id="btn-sim-mobile" onclick="switchSimulatedDevice('mobile')" class="px-2 py-1 rounded bg-slate-200 text-slate-700">手机端</button>
@@ -429,7 +449,6 @@
 
               <div id="editor-ai-tool-dock" class="flex flex-wrap gap-1.5"></div>
               <div id="tool-hub-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
-              <div id="sync-log-list" class="divide-y divide-slate-100 max-h-40 overflow-y-auto custom-scroll border border-slate-200 rounded-xl bg-white"></div>
             </div>
           </details>
         </div>
@@ -451,45 +470,54 @@
 
   <!-- Clean 3-Tab Mobile Bottom Bar -->
   <nav class="md:hidden h-12 bg-white border-t border-slate-200 grid grid-cols-3 shrink-0 z-20">
-    <button id="m-nav-notes" onclick="switchMainView('notes')" class="flex items-center justify-center gap-1.5 text-indigo-600 font-semibold text-xs">
+    <button id="m-nav-notes" onclick="switchMainView('notes')" class="flex items-center justify-center gap-1 text-indigo-600 font-semibold text-xs">
       <i data-lucide="edit-3" class="w-4 h-4"></i>
       <span>笔记工作台</span>
     </button>
-    <button id="m-nav-todos" onclick="switchMainView('todos')" class="flex items-center justify-center gap-1.5 text-slate-500 font-medium text-xs">
+    <button id="m-nav-todos" onclick="switchMainView('todos')" class="flex items-center justify-center gap-1 text-slate-500 font-medium text-xs">
       <i data-lucide="check-square" class="w-4 h-4"></i>
       <span>待办清单</span>
     </button>
-    <button id="m-nav-sync" onclick="switchMainView('sync')" class="flex items-center justify-center gap-1.5 text-slate-500 font-medium text-xs">
+    <button id="m-nav-sync" onclick="switchMainView('sync')" class="flex items-center justify-center gap-1 text-slate-500 font-medium text-xs">
       <i data-lucide="settings" class="w-4 h-4"></i>
       <span>网盘同步控制</span>
     </button>
     <button id="m-nav-tools" onclick="switchMainView('sync')" class="hidden">AI 工具插槽</button>
   </nav>
 
-  <!-- MODAL 5: HANDWRITTEN NOTE SNAP & AUTO-CLASSIFY PIPELINE MODAL -->
-  <div id="modal-handwriting-snap" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+  <!-- MODAL 5: HANDWRITTEN NOTE SNAP & PHOTO ALBUM MODAL (Dual Buttons: Album + Camera!) -->
+  <div id="modal-handwriting-snap" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-2xl max-w-xl w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-      <div class="px-5 py-3.5 bg-indigo-600 text-white flex items-center justify-between">
+      <div class="px-4 sm:px-5 py-3.5 bg-indigo-600 text-white flex items-center justify-between">
         <div class="flex items-center gap-2">
           <i data-lucide="camera" class="w-4 h-4"></i>
-          <h3 class="text-sm font-bold">📸 拍手写笔记 -> 自动转文字 + 分类 + 抽待办</h3>
+          <h3 class="text-sm font-bold">📸 导入手写笔记 -> 自动转文字 + 分类 + 抽待办</h3>
         </div>
         <button id="btn-close-snap-modal" onclick="closeHandwritingSnapModal()" class="p-1 rounded-lg text-white/80 hover:bg-white/10">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <div class="p-5 overflow-y-auto custom-scroll space-y-4 text-xs flex-1">
-        <div class="border-2 border-dashed border-indigo-200 rounded-xl p-4 bg-indigo-50/30 text-center space-y-2">
-          <div class="font-bold text-slate-800 text-sm">手机拍照 或 上传手写笔记图片</div>
-          <div class="pt-1 flex items-center justify-center gap-2 flex-wrap">
-            <label for="handwriting-file-input" class="cursor-pointer px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl inline-flex items-center gap-1.5">
-              <i data-lucide="camera" class="w-3.5 h-3.5"></i>
-              拍照 / 选择手写图片
+      <div class="p-4 sm:p-5 overflow-y-auto custom-scroll space-y-4 text-xs flex-1">
+        <!-- Dual Picker: 1. Choose from Phone Photo Album (No capture attribute!) 2. Direct Camera Capture -->
+        <div class="border-2 border-dashed border-indigo-200 rounded-xl p-4 bg-indigo-50/30 text-center space-y-2.5">
+          <div class="font-bold text-slate-800 text-sm">选择图片来源（支持手机相册选图 或 直接拍照）</div>
+          <div class="pt-1 flex items-center justify-center gap-2.5 flex-wrap">
+            <!-- Button 1: Open Phone Photo Library / Gallery (No capture attribute so album works!) -->
+            <label for="handwriting-file-input" class="cursor-pointer px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl inline-flex items-center gap-1.5 shadow-xs">
+              <i data-lucide="image" class="w-4 h-4"></i>
+              🖼️ 从手机相册 / 文件选择
             </label>
-            <input id="handwriting-file-input" onchange="handleHandwritingFileSelected(this)" type="file" accept="image/*" capture="environment" class="hidden" />
-            <span id="selected-handwriting-filename" class="text-indigo-700 font-medium"></span>
+            <input id="handwriting-file-input" onchange="handleHandwritingFileSelected(this)" type="file" accept="image/*" class="hidden" />
+
+            <!-- Button 2: Direct Rear Camera Snap -->
+            <label for="handwriting-camera-input" class="cursor-pointer px-4 py-2.5 bg-white hover:bg-slate-100 text-indigo-700 border border-indigo-300 font-semibold rounded-xl inline-flex items-center gap-1.5 shadow-2xs">
+              <i data-lucide="camera" class="w-4 h-4"></i>
+              📷 直接打开相机拍照
+            </label>
+            <input id="handwriting-camera-input" onchange="handleHandwritingFileSelected(this)" type="file" accept="image/*" capture="environment" class="hidden" />
           </div>
+          <div id="selected-handwriting-filename" class="text-emerald-700 font-semibold text-xs pt-1"></div>
         </div>
 
         <div class="space-y-2">
@@ -515,7 +543,7 @@
         </div>
       </div>
 
-      <div class="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2">
+      <div class="px-4 sm:px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2">
         <button id="btn-cancel-snap" onclick="closeHandwritingSnapModal()" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200">取消</button>
         <button id="btn-execute-snap" onclick="runHandwritingPipeline('uploaded')" class="px-4 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white">
           开始识别存档 + 自动分类抽待办
@@ -616,7 +644,7 @@
   </div>
 
   <!-- Toast Notification -->
-  <div id="toast-container" class="fixed bottom-14 md:bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+  <div id="toast-container" class="fixed bottom-14 md:bottom-5 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <script>
     // =========================================================================
@@ -634,6 +662,7 @@
     let editorMode = 'edit'; // 'edit' | 'preview' | 'split'
     let summaryFolded = true;
     let desktopDrawerOpen = true;
+    let isSyncingNow = false;
 
     const CATEGORY_META = {
       '客户情报类': { icon: '💼', short: '客户情报', badgeClass: 'bg-indigo-600 text-white', lightClass: 'bg-indigo-50 text-indigo-700 border-indigo-200' },
@@ -656,14 +685,14 @@
         driveRev: 1,
         isDirty: false,
         lastModifiedBy: '📱 手机端',
-        updatedAt: Date.now() - 120000
+        updatedAt: 1730000000000
       },
       {
         id: 'note-2',
         title: '📋 键盘直接输入与 Markdown 排版示例',
         category: '会议纪要类',
-        summary: `• 界面已全面精简：打字输入框面积扩大至全屏 85% 以上，上方摘要默认折叠为一行。\n• 支持直接输入或点击快捷栏使用 Markdown 排版，右上角可一键切换「编辑 / 阅读预览 / 双栏」。`,
-        content: `# 极简大屏写作体验\n\n除了用手机 **拍手写笔记** 导入，你平时也可以直接在程序里打字记录：\n\n### 1. 常用 Markdown 快捷排版\n- 支持 **加粗重点文字** 与 \`行内高亮代码\`\n- 支持多级标题与引用块：\n> 点击右上角的 **「📖 阅读预览」** 或 **「🌗 双栏」**，即可查看整洁的排版效果。\n\n### 2. 交互式待办勾选框\n- [x] 扩大核心打字输入框尺寸，移除多余干扰按钮\n- [ ] 在阅读预览模式下直接点击方框即可完成勾选`,
+        summary: `• 界面已全面精简：手机竖屏自适应全部按钮，支持相册选图与直接拍照。\n• 支持直接输入或点击快捷栏使用 Markdown 排版，右上角可一键切换「编辑 / 预览」。`,
+        content: `# 极简大屏写作体验\n\n除了用手机 **拍手写笔记 / 相册选图** 导入，你平时也可以直接在程序里打字记录：\n\n### 1. 常用 Markdown 快捷排版\n- 支持 **加粗重点文字** 与 \`行内高亮代码\`\n- 支持多级标题与引用块：\n> 点击右上角的 **「📖 阅读预览」** 或 **「🌗 双栏」**，即可查看整洁的排版效果。\n\n### 2. 交互式待办勾选框\n- [x] 扩大核心打字输入框尺寸，适配手机竖屏单手操作\n- [ ] 在预览模式下直接点击方框即可完成勾选`,
         tags: ['使用指南', 'Markdown'],
         starred: false,
         trashed: false,
@@ -671,7 +700,7 @@
         driveRev: 1,
         isDirty: false,
         lastModifiedBy: '💻 电脑端',
-        updatedAt: Date.now() - 3600000
+        updatedAt: 1729990000000
       }
     ];
 
@@ -683,7 +712,8 @@
         due: '周四 17:00',
         done: false,
         sourceNoteId: 'note-1',
-        sourceNoteTitle: '💼 拜访华东智造王总手写记录'
+        sourceNoteTitle: '💼 拜访华东智造王总手写记录',
+        updatedAt: 1730000000000
       },
       {
         id: 'todo-2',
@@ -692,7 +722,8 @@
         due: '下周二',
         done: false,
         sourceNoteId: 'note-1',
-        sourceNoteTitle: '💼 拜访华东智造王总手写记录'
+        sourceNoteTitle: '💼 拜访华东智造王总手写记录',
+        updatedAt: 1730000000000
       },
       {
         id: 'todo-3',
@@ -701,7 +732,8 @@
         due: '周五前',
         done: false,
         sourceNoteId: 'note-2',
-        sourceNoteTitle: '📋 键盘直接输入与 Markdown 排版示例'
+        sourceNoteTitle: '📋 键盘直接输入与 Markdown 排版示例',
+        updatedAt: 1729990000000
       }
     ];
 
@@ -732,6 +764,7 @@
       notes: [],
       todos: [],
       tools: [],
+      deletedIds: [],
       currentNoteId: 'note-1',
       currentFilter: 'all',
       currentCategoryFilter: null,
@@ -748,11 +781,12 @@
         geminiApiKey: '',
         googleClientId: '',
         driveAccessToken: '',
+        tokenExpiresAt: 0,
         autoBurnFiles: true
       },
       conflicts: [],
       syncLogs: [
-        { time: '刚刚', action: '系统就绪', detail: '极简大屏模式已开启，Google Drive 同步正常', status: 'ok' }
+        { time: '刚刚', action: '系统就绪', detail: '已加载本地配置，支持 Google Drive 双向合并同步', status: 'ok' }
       ]
     };
 
@@ -764,6 +798,7 @@
           appState.notes = parsed.notes && parsed.notes.length ? parsed.notes : defaultNotes;
           appState.todos = parsed.todos && parsed.todos.length ? parsed.todos : defaultTodos;
           appState.tools = parsed.tools && parsed.tools.length ? parsed.tools : defaultTools;
+          appState.deletedIds = parsed.deletedIds || [];
           appState.currentNoteId = parsed.currentNoteId || appState.notes[0].id;
           appState.defaultModel = parsed.defaultModel || 'gemini-3.5-flash-lite';
           if (parsed.syncConfig) appState.syncConfig = { ...appState.syncConfig, ...parsed.syncConfig };
@@ -786,6 +821,7 @@
           notes: appState.notes,
           todos: appState.todos,
           tools: appState.tools,
+          deletedIds: appState.deletedIds || [],
           currentNoteId: appState.currentNoteId,
           defaultModel: appState.defaultModel,
           syncConfig: appState.syncConfig,
@@ -1035,8 +1071,8 @@
         }
         if (mbtn) {
           mbtn.className = v === targetView
-            ? 'flex items-center justify-center gap-1.5 text-indigo-600 font-semibold text-xs'
-            : 'flex items-center justify-center gap-1.5 text-slate-500 font-medium text-xs';
+            ? 'flex items-center justify-center gap-1 text-indigo-600 font-semibold text-xs'
+            : 'flex items-center justify-center gap-1 text-slate-500 font-medium text-xs';
         }
       });
       if (window.lucide) window.lucide.createIcons();
@@ -1120,7 +1156,7 @@
                  (n.tags || []).some(t => t.toLowerCase().includes(q));
         }
         return true;
-      }).sort((a, b) => b.updatedAt - a.updatedAt);
+      }).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
     }
 
     function renderNoteList() {
@@ -1166,6 +1202,7 @@
       const contentInput = document.getElementById('note-content-input');
       const previewEl = document.getElementById('note-md-preview');
       const catSelect = document.getElementById('note-category-select');
+      const catSelectMobile = document.getElementById('note-category-select-mobile');
       const summaryPill = document.getElementById('summary-category-pill');
       const summaryOneLine = document.getElementById('note-summary-one-line');
       const summaryText = document.getElementById('note-summary-text');
@@ -1189,6 +1226,7 @@
 
       const cat = note.category || '灵感随笔类';
       if (catSelect) catSelect.value = cat;
+      if (catSelectMobile) catSelectMobile.value = cat;
       const catInfo = CATEGORY_META[cat] || CATEGORY_META['灵感随笔类'];
       if (summaryPill) {
         summaryPill.className = `px-1.5 py-0.5 text-[10px] font-bold rounded shrink-0 ${catInfo.badgeClass}`;
@@ -1209,7 +1247,7 @@
         </span>
       `).join('');
 
-      if (revInfo) revInfo.textContent = `本地 v${note.localRev} · Drive v${note.driveRev}`;
+      if (revInfo) revInfo.textContent = `本地 v${note.localRev || 1} · Drive v${note.driveRev || 1}`;
       if (updatedInfo) updatedInfo.textContent = formatTimeAgo(note.updatedAt);
       if (charCount) charCount.textContent = `${(note.content || '').length} 字`;
     }
@@ -1258,6 +1296,10 @@
       pendingHandwritingFile = null;
       document.getElementById('selected-handwriting-filename').textContent = '';
       document.getElementById('handwriting-manual-text').value = '';
+      const f1 = document.getElementById('handwriting-file-input');
+      const f2 = document.getElementById('handwriting-camera-input');
+      if (f1) f1.value = '';
+      if (f2) f2.value = '';
       const modal = document.getElementById('modal-handwriting-snap');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
@@ -1272,7 +1314,7 @@
     function handleHandwritingFileSelected(inputEl) {
       if (inputEl.files && inputEl.files[0]) {
         pendingHandwritingFile = inputEl.files[0];
-        document.getElementById('selected-handwriting-filename').textContent = `已选：${pendingHandwritingFile.name}`;
+        document.getElementById('selected-handwriting-filename').textContent = `✅ 已选择图片：${pendingHandwritingFile.name}（点击右下角「开始识别存档」即可处理）`;
       }
     }
 
@@ -1297,7 +1339,7 @@
           const sampleFallback = HANDWRITING_SAMPLES[mode] || HANDWRITING_SAMPLES['sample-client'];
           const sysPrompt = `请识别手写笔记图片或文本，严格只输出 JSON 格式：
 {"title":"标题","category":"客户情报类|会议纪要类|待办类|灵感随笔类","tags":["标签1","标签2"],"summary":"针对该分类的定制摘要","rawTranscription":"Markdown格式的手写原文存档","todos":[{"text":"待办事项","priority":"high|medium|low","due":"期限"}]}`;
-          const parts = [{ text: sysPrompt + '\n\n内容：\n' + (manualText || (mode.startsWith('sample-') ? sampleFallback.rawTranscription : '请识别手写图片')) }];
+          const parts = [{ text: sysPrompt + '\n\n内容：\n' + (manualText || (mode.startsWith('sample-') ? sampleFallback.rawTranscription : '请完整识别图片中的手写文字并结构化排版')) }];
           if (pendingHandwritingFile && pendingHandwritingFile.type.startsWith('image/')) {
             const b64 = await fileToBase64(pendingHandwritingFile);
             parts.push({ inline_data: { mime_type: pendingHandwritingFile.type, data: b64 } });
@@ -1451,7 +1493,8 @@
             due: item.due || '近期',
             done: false,
             sourceNoteId: sourceNote.id,
-            sourceNoteTitle: sourceNote.title
+            sourceNoteTitle: sourceNote.title,
+            updatedAt: Date.now()
           });
           addedCount++;
         }
@@ -1508,6 +1551,7 @@
       const item = appState.todos.find(t => t.id === todoId);
       if (!item) return;
       item.done = !item.done;
+      item.updatedAt = Date.now();
       saveState();
       renderTodoLists();
       scheduleDebouncedDriveSync();
@@ -1525,7 +1569,8 @@
         due: dueEl && dueEl.value.trim() ? dueEl.value.trim() : '近期',
         done: false,
         sourceNoteId: null,
-        sourceNoteTitle: ''
+        sourceNoteTitle: '',
+        updatedAt: Date.now()
       });
       el.value = '';
       if (dueEl) dueEl.value = '';
@@ -1536,15 +1581,23 @@
     }
 
     function deleteTodoItem(todoId) {
+      if (!appState.deletedIds) appState.deletedIds = [];
+      if (!appState.deletedIds.includes(todoId)) appState.deletedIds.push(todoId);
       appState.todos = appState.todos.filter(t => t.id !== todoId);
       saveState();
       renderTodoLists();
+      scheduleDebouncedDriveSync();
     }
 
     function clearCompletedTodos() {
+      if (!appState.deletedIds) appState.deletedIds = [];
+      appState.todos.filter(t => t.done).forEach(t => {
+        if (!appState.deletedIds.includes(t.id)) appState.deletedIds.push(t.id);
+      });
       appState.todos = appState.todos.filter(t => !t.done);
       saveState();
       renderTodoLists();
+      scheduleDebouncedDriveSync();
       showToast('已清理已完成事项');
     }
 
@@ -1557,13 +1610,14 @@
     }
 
     // =========================================================================
-    // 6. REAL GOOGLE DRIVE OAUTH + AUTO-CREATE/PULL/PUSH SYNC ENGINE
+    // 6. REAL TWO-WAY GOOGLE DRIVE OAUTH + SMART MERGE (PULL + MERGE + PUSH)
     // =========================================================================
-    function startGoogleOAuthPopup() {
+    function startGoogleOAuthPopup(silentPrompt = false) {
       const clientIdInput = document.getElementById('input-google-client-id');
-      const clientId = (clientIdInput ? clientIdInput.value : appState.settings.googleClientId || '').trim();
+      const clientId = (clientIdInput && clientIdInput.value ? clientIdInput.value : appState.settings.googleClientId || '').trim();
       if (!clientId) {
-        showToast('请先填入你的 Google OAuth Client ID');
+        switchMainView('sync');
+        showToast('请先在设置页填入 Google OAuth Client ID');
         return;
       }
       appState.settings.googleClientId = clientId;
@@ -1572,15 +1626,15 @@
       if (!window.google || !window.google.accounts || !window.google.accounts.oauth2) {
         const script = document.createElement('script');
         script.src = 'https://accounts.google.com/gsi/client';
-        script.onload = () => requestDriveToken(clientId);
+        script.onload = () => requestDriveToken(clientId, silentPrompt);
         script.onerror = () => showToast('无法加载 Google 登录组件，请检查网络');
         document.head.appendChild(script);
       } else {
-        requestDriveToken(clientId);
+        requestDriveToken(clientId, silentPrompt);
       }
     }
 
-    function requestDriveToken(clientId) {
+    function requestDriveToken(clientId, silentPrompt = false) {
       try {
         const tokenClient = window.google.accounts.oauth2.initTokenClient({
           client_id: clientId,
@@ -1588,17 +1642,212 @@
           callback: async (resp) => {
             if (resp && resp.access_token) {
               appState.settings.driveAccessToken = resp.access_token;
+              appState.settings.tokenExpiresAt = Date.now() + ((resp.expires_in || 3599) * 1000);
               const dtInput = document.getElementById('input-drive-token');
               if (dtInput) dtInput.value = resp.access_token;
               saveState();
-              showToast('Google Drive 授权成功！正在同步...');
-              await executeGoogleDriveSync('OAuth 首次授权同步');
+              showToast('Google 网盘已连接！正在双向合并同步...');
+              await executeGoogleDriveSync('OAuth 授权双向同步');
             }
           }
         });
-        tokenClient.requestAccessToken({ prompt: 'consent' });
+        tokenClient.requestAccessToken({ prompt: silentPrompt ? '' : '' });
       } catch (e) {
         showToast('请在部署后的 https 网址下发起 Google 授权');
+      }
+    }
+
+    // Smart Two-Way Merge helper so Mobile and Desktop never overwrite each other's notes
+    function mergeRemoteAndLocalData(remoteData) {
+      if (!remoteData || typeof remoteData !== 'object') return false;
+      let hasNewChangesFromRemote = false;
+
+      const mergedDeletedIds = Array.from(new Set([...(appState.deletedIds || []), ...(remoteData.deletedIds || [])]));
+      appState.deletedIds = mergedDeletedIds;
+
+      // 1. Merge Notes by ID and updatedAt
+      if (Array.isArray(remoteData.notes)) {
+        const localMap = new Map();
+        appState.notes.forEach(n => localMap.set(n.id, n));
+
+        remoteData.notes.forEach(rNote => {
+          if (!rNote || !rNote.id || mergedDeletedIds.includes(rNote.id)) return;
+          const lNote = localMap.get(rNote.id);
+          if (!lNote) {
+            // New note created on the other device!
+            localMap.set(rNote.id, { ...rNote, isDirty: false });
+            hasNewChangesFromRemote = true;
+          } else {
+            const rTime = rNote.updatedAt || 0;
+            const lTime = lNote.updatedAt || 0;
+            if (rTime > lTime) {
+              // Remote device has a newer edit of this note
+              localMap.set(rNote.id, { ...rNote, isDirty: false });
+              hasNewChangesFromRemote = true;
+            }
+          }
+        });
+
+        appState.notes = Array.from(localMap.values())
+          .filter(n => !mergedDeletedIds.includes(n.id))
+          .sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+      }
+
+      // 2. Merge Todos by ID / text
+      if (Array.isArray(remoteData.todos)) {
+        const todoMap = new Map();
+        appState.todos.forEach(t => todoMap.set(t.id, t));
+
+        remoteData.todos.forEach(rTodo => {
+          if (!rTodo || !rTodo.id || mergedDeletedIds.includes(rTodo.id)) return;
+          const lTodo = todoMap.get(rTodo.id);
+          if (!lTodo) {
+            const sameText = Array.from(todoMap.values()).find(x => x.text === rTodo.text);
+            if (!sameText) {
+              todoMap.set(rTodo.id, rTodo);
+              hasNewChangesFromRemote = true;
+            }
+          } else if ((rTodo.updatedAt || 0) > (lTodo.updatedAt || 0)) {
+            todoMap.set(rTodo.id, rTodo);
+            hasNewChangesFromRemote = true;
+          }
+        });
+
+        appState.todos = Array.from(todoMap.values()).filter(t => !mergedDeletedIds.includes(t.id));
+      }
+
+      if (appState.notes.length > 0 && !appState.notes.some(n => n.id === appState.currentNoteId)) {
+        appState.currentNoteId = appState.notes[0].id;
+      }
+
+      return hasNewChangesFromRemote;
+    }
+
+    async function pullFromGoogleDriveManual() {
+      await executeGoogleDriveSync('手动拉取并合并', true);
+    }
+
+    async function executeGoogleDriveSync(triggerSource, notifyIfNoToken = false) {
+      if (isSyncingNow) return;
+      const statusText = document.getElementById('sync-status-text');
+      const dot = document.getElementById('sync-dot');
+
+      if (appState.conflicts.length > 0) {
+        openConflictModal();
+        return;
+      }
+
+      const token = (appState.settings.driveAccessToken || '').trim();
+      if (!token) {
+        if (statusText) statusText.textContent = '已同步';
+        dot.className = 'w-2 h-2 rounded-full bg-amber-500';
+        if (notifyIfNoToken || triggerSource === '手动同步') {
+          if (appState.settings.googleClientId) {
+            startGoogleOAuthPopup(false);
+          } else {
+            switchMainView('sync');
+            showToast('请先在「同步与设置」中点击「授权登录」连接 Google Drive');
+          }
+        }
+        return;
+      }
+
+      isSyncingNow = true;
+      try {
+        if (statusText) statusText.textContent = '双向同步中...';
+        dot.className = 'w-2 h-2 rounded-full bg-indigo-500 animate-ping';
+
+        // 1. Search for MyUpNote_Sync_Data.json in Drive (ordered by newest first)
+        const searchUrl = "https://www.googleapis.com/drive/v3/files?q=name='MyUpNote_Sync_Data.json' and trashed=false&orderBy=modifiedTime desc&fields=files(id,name,modifiedTime)";
+        const searchResp = await fetch(searchUrl, {
+          headers: { Authorization: 'Bearer ' + token }
+        });
+
+        if (searchResp.status === 401 || searchResp.status === 403) {
+          isSyncingNow = false;
+          if (statusText) statusText.textContent = '点此续期网盘';
+          dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+          addSyncLog(triggerSource, 'Google Drive 1小时安全令牌已到期，请点击顶部「点此续期网盘」或授权登录按钮一键刷新', 'warn');
+          if (triggerSource === '手动同步' || notifyIfNoToken) {
+            if (appState.settings.googleClientId) {
+              showToast('网盘令牌已满1小时，正在为你一键续期...');
+              startGoogleOAuthPopup(false);
+            } else {
+              switchMainView('sync');
+              showToast('网盘令牌已过期，请重新点击「授权登录」');
+            }
+          }
+          return;
+        }
+
+        const searchJson = await searchResp.json();
+        let existingFileId = null;
+
+        // 2. PULL & MERGE: If file exists on Drive, download its JSON first and merge with local notes!
+        if (searchJson.files && searchJson.files.length > 0) {
+          existingFileId = searchJson.files[0].id;
+          try {
+            const downloadResp = await fetch(`https://www.googleapis.com/drive/v3/files/${existingFileId}?alt=media`, {
+              headers: { Authorization: 'Bearer ' + token }
+            });
+            if (downloadResp.ok) {
+              const remoteData = await downloadResp.json();
+              const pulledNew = mergeRemoteAndLocalData(remoteData);
+              if (pulledNew) {
+                showToast('☁️ 已从 Google Drive 合并另一台设备的最新笔记！');
+              }
+            }
+          } catch (pullErr) {
+            console.warn('Pull warning:', pullErr);
+          }
+        }
+
+        // 3. PUSH MERGED STATE BACK TO GOOGLE DRIVE
+        const payloadObj = {
+          updatedAt: Date.now(),
+          notes: appState.notes,
+          todos: appState.todos,
+          deletedIds: appState.deletedIds || []
+        };
+        const payloadStr = JSON.stringify(payloadObj, null, 2);
+
+        if (existingFileId) {
+          await fetch(`https://www.googleapis.com/upload/drive/v3/files/${existingFileId}?uploadType=media`, {
+            method: 'PATCH',
+            headers: {
+              Authorization: 'Bearer ' + token,
+              'Content-Type': 'application/json'
+            },
+            body: payloadStr
+          });
+        } else {
+          const metadata = { name: 'MyUpNote_Sync_Data.json', mimeType: 'application/json' };
+          const form = new FormData();
+          form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+          form.append('file', new Blob([payloadStr], { type: 'application/json' }));
+          await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + token },
+            body: form
+          });
+        }
+
+        appState.notes.filter(n => n.isDirty).forEach(n => {
+          n.driveRev = n.localRev;
+          n.isDirty = false;
+        });
+
+        saveState();
+        if (statusText) statusText.textContent = '已双向同步';
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+        addSyncLog(triggerSource, `双向同步成功（共 ${appState.notes.filter(n => !n.trashed).length} 篇笔记，${appState.todos.length} 条待办）`, 'ok');
+        renderAll();
+      } catch (e) {
+        if (statusText) statusText.textContent = '同步重试';
+        dot.className = 'w-2 h-2 rounded-full bg-amber-500';
+        addSyncLog(triggerSource, '网络波动或令牌需刷新，已保存在本机存储', 'warn');
+      } finally {
+        isSyncingNow = false;
       }
     }
 
@@ -1670,66 +1919,7 @@
     function triggerManualSync() {
       if (debounceTimer) clearTimeout(debounceTimer);
       if (debounceCountdownInterval) clearInterval(debounceCountdownInterval);
-      executeGoogleDriveSync('手动同步');
-    }
-
-    async function executeGoogleDriveSync(triggerSource) {
-      const statusText = document.getElementById('sync-status-text');
-      const dot = document.getElementById('sync-dot');
-
-      if (appState.conflicts.length > 0) {
-        openConflictModal();
-        return;
-      }
-
-      const token = (appState.settings.driveAccessToken || '').trim();
-      if (token) {
-        try {
-          if (statusText) statusText.textContent = '同步网盘中...';
-          const searchResp = await fetch("https://www.googleapis.com/drive/v3/files?q=name='MyUpNote_Sync_Data.json' and trashed=false&fields=files(id,name,modifiedTime)", {
-            headers: { Authorization: 'Bearer ' + token }
-          });
-          const searchJson = await searchResp.json();
-          const payloadObj = { updatedAt: Date.now(), notes: appState.notes, todos: appState.todos };
-          const payloadStr = JSON.stringify(payloadObj, null, 2);
-
-          if (searchJson.files && searchJson.files.length > 0) {
-            const fileId = searchJson.files[0].id;
-            await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
-              method: 'PATCH',
-              headers: {
-                Authorization: 'Bearer ' + token,
-                'Content-Type': 'application/json'
-              },
-              body: payloadStr
-            });
-          } else {
-            // Auto-create file in Google Drive on first sync
-            const metadata = { name: 'MyUpNote_Sync_Data.json', mimeType: 'application/json' };
-            const form = new FormData();
-            form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-            form.append('file', new Blob([payloadStr], { type: 'application/json' }));
-            await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-              method: 'POST',
-              headers: { Authorization: 'Bearer ' + token },
-              body: form
-            });
-          }
-        } catch (e) {
-          addSyncLog(triggerSource, '网盘令牌待刷新，已先保存在本机存储', 'warn');
-        }
-      }
-
-      appState.notes.filter(n => n.isDirty).forEach(n => {
-        n.driveRev = n.localRev;
-        n.isDirty = false;
-      });
-
-      saveState();
-      if (statusText) statusText.textContent = '已同步';
-      dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
-      addSyncLog(triggerSource, `已同步笔记与待办至 Google Drive`, 'ok');
-      renderAll();
+      executeGoogleDriveSync('手动同步', true);
     }
 
     function simulateRemoteConflict() {
@@ -1741,7 +1931,7 @@
         noteId: note.id,
         noteTitle: note.title,
         localRev: note.localRev,
-        remoteRev: note.driveRev + 1,
+        remoteRev: (note.driveRev || 1) + 1,
         localContent: note.content,
         remoteContent: note.content + `\n\n- [ ] 手机端新增补充：联系张总确认两年维保条款`
       };
@@ -1784,6 +1974,7 @@
         note.localRev = Math.max(c.localRev, c.remoteRev) + 1;
         note.driveRev = note.localRev;
         note.isDirty = false;
+        note.updatedAt = Date.now();
       }
       saveState();
       closeConflictModal();
@@ -1810,7 +2001,7 @@
       if (!list) return;
       list.innerHTML = appState.syncLogs.map(item => `
         <div class="px-3 py-2 flex items-center justify-between text-xs">
-          <span class="truncate">${escapeHtml(item.action)}: ${escapeHtml(item.detail)}</span>
+          <span class="truncate ${item.status === 'warn' ? 'text-amber-700 font-medium' : 'text-slate-700'}">${escapeHtml(item.action)}: ${escapeHtml(item.detail)}</span>
           <span class="text-slate-400 font-mono ml-2 shrink-0">${escapeHtml(item.time)}</span>
         </div>
       `).join('');
@@ -1856,7 +2047,7 @@
     function downloadSelfHtmlFile() {
       const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
       triggerFileDownload('index.html', fullHtml, 'text/html;charset=utf-8');
-      showToast('已下载 index.html 部署文件！');
+      showToast('已下载最新版 index.html 部署文件！');
     }
 
     function triggerFileDownload(filename, text, mime) {
@@ -1900,6 +2091,7 @@
         document.getElementById('mobile-backdrop').classList.add('hidden');
       }
       document.getElementById('note-content-input').focus();
+      scheduleDebouncedDriveSync();
     }
 
     function selectNote(noteId) {
@@ -1956,8 +2148,11 @@
       if (!note) return;
       if (!note.trashed) {
         note.trashed = true;
+        note.updatedAt = Date.now();
         showToast('已移入回收站');
       } else {
+        if (!appState.deletedIds) appState.deletedIds = [];
+        if (!appState.deletedIds.includes(note.id)) appState.deletedIds.push(note.id);
         appState.notes = appState.notes.filter(n => n.id !== note.id);
         showToast('已彻底删除');
       }
@@ -1965,6 +2160,7 @@
       appState.currentNoteId = remaining.length > 0 ? remaining[0].id : '';
       saveState();
       renderAll();
+      scheduleDebouncedDriveSync();
     }
 
     function handleTagKeydown(e) {
@@ -2104,7 +2300,10 @@
       appState.settings.driveAccessToken = document.getElementById('input-drive-token').value.trim();
       appState.settings.autoBurnFiles = document.getElementById('toggle-auto-burn').checked;
       saveState();
-      showToast('连接与隐私设置已保存');
+      showToast('连接与隐私设置已保存到本机浏览器');
+      if (appState.settings.driveAccessToken) {
+        executeGoogleDriveSync('保存设置后自动同步');
+      }
     }
 
     function fileToBase64(file) {
@@ -2138,9 +2337,19 @@
       return new Date(ts).toLocaleDateString();
     }
 
+    // Auto-pull when user switches back to tab/window on phone or desktop
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && appState.settings.driveAccessToken && appState.syncConfig.pollInterval !== 'manual') {
+        executeGoogleDriveSync('切回窗口自动同步');
+      }
+    });
+
     window.onload = function() {
       loadState();
       renderAll();
+      if (appState.settings.driveAccessToken) {
+        executeGoogleDriveSync('启动自动拉取同步');
+      }
     };
   </script>
 </body>
