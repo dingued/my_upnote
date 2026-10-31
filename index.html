@@ -635,8 +635,8 @@
         </button>
       </div>
 
-      <!-- Center: Absolutely Centered 3-View Segmented Control -->
-      <div style="position: absolute; left: 50%; transform: translateX(-50%);">
+      <!-- Center: Flex-Centered 3-View Segmented Control (Never overlaps right toolbar) -->
+      <div style="display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
         <div class="ln-segmented">
           <button id="tab-btn-notes" onclick="switchMainView('notes')" class="ln-seg-item active">
             <span>✍️ 写笔记</span>
@@ -677,11 +677,8 @@
     <!-- Main Workbench Body (calc(100vh - 56px)) -->
     <div style="height: calc(100vh - 56px); display: flex; overflow: hidden; width: 100%;">
 
-      <!-- DESKTOP VIEW 1: THREE-COLUMN NOTES WORKBENCH -->
-      <div id="view-notes" style="flex: 1; display: flex; overflow: hidden; width: 100%;">
-
-        <!-- Column 1: Left Knowledge Category & Tag Navigation (200px) -->
-        <aside id="left-sidebar" style="width: 200px; flex-shrink: 0; background: var(--bg-sidebar); border-right: 1px solid var(--border-subtle); padding: 12px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;">
+      <!-- Column 1: Global Left Knowledge Category & Tag Navigation (200px, accessible from Notes, Todos, and Settings) -->
+      <aside id="left-sidebar" style="width: 200px; flex-shrink: 0; background: var(--bg-sidebar); border-right: 1px solid var(--border-subtle); padding: 12px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden;">
           <div class="custom-scroll" style="flex: 1; overflow-y: auto; min-height: 0; display: flex; flex-direction: column;">
             <!-- Top New Note Primary Button -->
             <button id="btn-create-note" onclick="createNewNote()" style="width: 100%; height: 36px; background: var(--btn-primary-bg); color: var(--btn-primary-text); border: none; border-radius: 8px; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; flex-shrink: 0;">
@@ -748,6 +745,9 @@
             <div id="sidebar-local-folder-path" class="truncate" style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">未挂载 · 点击绑定目录</div>
           </div>
         </aside>
+
+      <!-- DESKTOP VIEW 1: NOTES WORKBENCH (Middle Note List + Right Editor) -->
+      <div id="view-notes" style="flex: 1; display: flex; overflow: hidden; width: 100%; position: relative;">
 
         <!-- Column 2: Middle Note Card Stream (288px) -->
         <section style="width: 288px; flex-shrink: 0; background: var(--bg-list); border-right: 1px solid var(--border-subtle); display: flex; flex-direction: column; overflow: hidden;">
@@ -892,6 +892,48 @@
             </div>
           </div>
         </main>
+
+        <!-- Floating Quick-Flash Orb & Popover on Editor Page -->
+        <div id="quick-flash-fab-container" style="position: absolute; right: 26px; bottom: 24px; z-index: 38; display: flex; flex-direction: column; align-items: flex-end;">
+          <!-- Popover Input Card -->
+          <div id="quick-flash-popover" class="hidden" style="display: none; width: 340px; max-width: calc(100vw - 40px); background: #FFFFFF; border: 1px solid var(--border-strong); border-radius: 14px; box-shadow: 0 14px 34px rgba(24, 24, 27, 0.16); padding: 12px 14px; margin-bottom: 10px; flex-direction: column; gap: 8px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 13px; font-weight: 700; color: var(--text-primary);">💬 快速添加闪念</span>
+                <span style="font-size: 10.5px; color: var(--ai-badge-text); background: var(--ai-badge-bg); padding: 1px 6px; border-radius: 999px; font-weight: 600;">不中断当前编辑</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <button type="button" onclick="openFlashNotebookFromFab()" style="border: none; background: transparent; color: var(--ai-primary); font-size: 11px; font-weight: 600; cursor: pointer; padding: 2px 4px;">打开速记本 ↗</button>
+                <button type="button" onclick="toggleQuickFlashPopover(false)" class="ln-icon-btn" style="width: 22px; height: 22px; font-size: 12px;">✕</button>
+              </div>
+            </div>
+            <textarea
+              id="fab-flash-input"
+              rows="3"
+              onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();submitQuickFlashFromFab();}else if(event.key==='Escape'){event.preventDefault();toggleQuickFlashPopover(false);}"
+              placeholder="随手记下刚想到的灵感、电话要点或待办（按 Enter 立即存入闪念速记本，Shift+Enter 换行）..."
+              class="ln-input"
+              style="width: 100%; height: auto; min-height: 68px; padding: 8px 10px; font-size: 13px; line-height: 1.6; resize: none;"
+            ></textarea>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <span style="font-size: 11px; color: var(--text-muted);">回车即存 · 待整理 <strong id="fab-popover-pending-count" style="color: var(--ai-primary);">0</strong> 条</span>
+              <button type="button" onclick="submitQuickFlashFromFab()" class="ln-btn-ai" style="height: 28px; padding: 0 12px; font-size: 12px;">存入闪念 ↵</button>
+            </div>
+          </div>
+
+          <!-- Floating Action Ball Button -->
+          <button
+            id="btn-quick-flash-fab"
+            type="button"
+            onclick="toggleQuickFlashPopover()"
+            title="快速添加一条闪念速记 (Alt+N)"
+            style="height: 42px; padding: 0 16px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18); background: linear-gradient(135deg, #4F46E5 0%, #3730A3 100%); color: #FFFFFF; box-shadow: 0 8px 22px rgba(79, 70, 229, 0.34); display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease;"
+          >
+            <span style="font-size: 15px;">💬</span>
+            <span>闪念速记</span>
+            <span id="fab-flash-badge" style="padding: 1px 6px; border-radius: 999px; font-size: 10.5px; font-weight: 700; background: rgba(255,255,255,0.22); color: #FFFFFF;">0</span>
+          </button>
+        </div>
       </div>
 
       <!-- DESKTOP VIEW 1.5: LEGACY CONTAINER (HIDDEN - Flash Jottings now live inside Left Sidebar 💬 闪念速记本) -->
@@ -2784,6 +2826,7 @@
       if (!sb) return;
       desktopDrawerOpen = !desktopDrawerOpen;
       sb.hidden = !desktopDrawerOpen;
+      sb.style.display = desktopDrawerOpen ? 'flex' : 'none';
     }
 
     function toggleMobileSidebar() {
@@ -5941,7 +5984,7 @@ function doPost(e) {
         'input-google-client-id', 'input-drive-token',
         'note-title-input', 'm-note-title-input',
         'note-content-input', 'm-note-content-input',
-        'search-input', 'm-search-input', 'quick-sidebar-flash-input', 'flash-input-desktop', 'flash-input-mobile',
+        'search-input', 'm-search-input', 'quick-sidebar-flash-input', 'fab-flash-input', 'flash-input-desktop', 'flash-input-mobile',
         'full-todo-input', 'full-todo-due', 'm-todo-input', 'm-todo-due',
         'handwriting-manual-text', 'audio-manual-context'
       ];
@@ -6057,7 +6100,15 @@ function doPost(e) {
       renderCurrentNoteEditor();
     }
 
+    function ensureNotesMainViewActive() {
+      const notesView = document.getElementById('view-notes');
+      if (notesView && notesView.classList.contains('hidden')) {
+        switchMainView('notes');
+      }
+    }
+
     function setNoteFilter(filterType) {
+      ensureNotesMainViewActive();
       appState.currentFilter = filterType;
       appState.currentCategoryFilter = null;
       appState.currentTagFilter = null;
@@ -6070,6 +6121,7 @@ function doPost(e) {
     }
 
     function setCategoryFilter(cat) {
+      ensureNotesMainViewActive();
       appState.currentCategoryFilter = appState.currentCategoryFilter === cat ? null : cat;
       appState.currentFilter = 'all';
       flashSubmenuOpen = false;
@@ -6081,6 +6133,18 @@ function doPost(e) {
     }
 
     function toggleFlashNotebookMenu() {
+      const notesView = document.getElementById('view-notes');
+      const wasOutsideNotes = Boolean(notesView && notesView.classList.contains('hidden'));
+      if (wasOutsideNotes) {
+        ensureNotesMainViewActive();
+        flashSubmenuOpen = true;
+        if (!isFlashFilterActive()) {
+          setFlashSubFilter('pending');
+        } else {
+          renderAll();
+        }
+        return;
+      }
       if (flashSubmenuOpen) {
         flashSubmenuOpen = false;
         renderSidebarCountsAndTags();
@@ -6095,6 +6159,7 @@ function doPost(e) {
     }
 
     function setFlashSubFilter(subMode) {
+      ensureNotesMainViewActive();
       flashSubmenuOpen = true;
       appState.currentCategoryFilter = null;
       appState.currentTagFilter = null;
@@ -6130,6 +6195,7 @@ function doPost(e) {
     }
 
     function setTagFilter(tag) {
+      ensureNotesMainViewActive();
       appState.currentTagFilter = appState.currentTagFilter === tag ? null : tag;
       appState.currentFilter = 'all';
       const filtered = getFilteredNotes();
@@ -6627,7 +6693,7 @@ function doPost(e) {
       return `${mm}-${dd} ${hh}:${min}`;
     }
 
-    function addFlashBubble(text, sourceLabel = '💬 随手闪念', allowEmpty = false) {
+    function addFlashBubble(text, sourceLabel = '💬 随手闪念', allowEmpty = false, keepCurrentNoteContext = false) {
       const clean = String(text || '').trim();
       if (!clean && !allowEmpty) return null;
       if (!Array.isArray(appState.flashes)) appState.flashes = [];
@@ -6643,11 +6709,52 @@ function doPost(e) {
         archivedNoteTitle: ''
       };
       appState.flashes.push(item);
-      activeFlashId = item.id;
+      if (!keepCurrentNoteContext) {
+        activeFlashId = item.id;
+      }
       saveState();
-      renderAll();
+      if (keepCurrentNoteContext) {
+        renderFlashBubbles();
+        renderSidebarCountsAndTags();
+        if (isFlashFilterActive()) renderNoteList();
+      } else {
+        renderAll();
+      }
       scheduleDebouncedDriveSync();
       return item;
+    }
+
+    function toggleQuickFlashPopover(forceState) {
+      const pop = document.getElementById('quick-flash-popover');
+      if (!pop) return;
+      const isCurrentlyOpen = !pop.classList.contains('hidden') && pop.style.display !== 'none';
+      const nextOpen = typeof forceState === 'boolean' ? forceState : !isCurrentlyOpen;
+      pop.classList.toggle('hidden', !nextOpen);
+      pop.style.display = nextOpen ? 'flex' : 'none';
+      if (nextOpen) {
+        const inp = document.getElementById('fab-flash-input');
+        if (inp) setTimeout(() => inp.focus(), 30);
+      }
+    }
+
+    function submitQuickFlashFromFab() {
+      const inp = document.getElementById('fab-flash-input');
+      if (!inp) return;
+      const val = String(inp.value || '').trim();
+      if (!val) {
+        showToast('请输入一条闪念内容后再按回车');
+        inp.focus();
+        return;
+      }
+      inp.value = '';
+      addFlashBubble(val, '💬 悬浮球速记', false, true);
+      toggleQuickFlashPopover(false);
+      showToast('💬 已存入「闪念速记本 ➔ 待整理速记」（未打断当前笔记编辑）');
+    }
+
+    function openFlashNotebookFromFab() {
+      toggleQuickFlashPopover(false);
+      setFlashSubFilter('pending');
     }
 
     function addFlashBubbleFromInput(inputId) {
@@ -6992,7 +7099,7 @@ function doPost(e) {
       const totalCount = appState.flashes.length;
       const selCount = selectedFlashIds.size;
 
-      ['badge-flash-pending', 'm-badge-flash-pending', 'count-flash-pending', 'count-flash-sub-pending', 'col2-count-pending'].forEach(id => {
+      ['badge-flash-pending', 'm-badge-flash-pending', 'count-flash-pending', 'count-flash-sub-pending', 'col2-count-pending', 'fab-flash-badge', 'fab-popover-pending-count'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.textContent = unarchivedCount;
       });
@@ -7321,6 +7428,15 @@ ${cleanMd}`;
     }
 
     function setupZeroFrictionGlobalListeners() {
+      // 0. Global Alt+N Shortcut to Toggle Quick-Flash Floating Popover
+      document.addEventListener('keydown', (e) => {
+        if (e.altKey && (e.key === 'n' || e.key === 'N')) {
+          e.preventDefault();
+          ensureNotesMainViewActive();
+          toggleQuickFlashPopover();
+        }
+      });
+
       // 1. Global Ctrl+V Image Paste Listener
       document.addEventListener('paste', (e) => {
         const cd = e.clipboardData;
