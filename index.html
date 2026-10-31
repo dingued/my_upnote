@@ -438,8 +438,42 @@
     /* Markdown Preview & GFM Table Typography */
     .md-preview {
       color: var(--text-primary);
-      font-size: 14px;
-      line-height: 1.75;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.8;
+      letter-spacing: 0.01em;
+      max-width: 780px;
+      margin: 0 auto;
+      cursor: text;
+    }
+    .typora-editor-textarea {
+      font-family: var(--font-sans) !important;
+      font-size: 15px !important;
+      line-height: 1.8 !important;
+      letter-spacing: 0.01em;
+      max-width: 780px;
+      margin: 0 auto;
+      display: block;
+    }
+    .flash-bubble-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px 14px 14px 4px;
+      padding: 12px 15px;
+      box-shadow: var(--shadow-xs);
+      transition: all 0.14s ease;
+    }
+    .flash-bubble-card:hover {
+      border-color: var(--border-strong);
+    }
+    .flash-bubble-card.selected {
+      background: var(--bg-active-card);
+      border-color: var(--ai-primary);
+      box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.15);
+    }
+    .flash-bubble-card.archived {
+      opacity: 0.68;
+      background: #FAFAFA;
     }
     .md-preview h1 {
       font-size: 1.35rem;
@@ -607,6 +641,11 @@
           <button id="tab-btn-notes" onclick="switchMainView('notes')" class="ln-seg-item active">
             <span>✍️ 写笔记</span>
           </button>
+          <button id="tab-btn-flashes" onclick="setFlashSubFilter('pending')" class="ln-seg-item hidden" style="display: none;">
+            <span>💬 闪念气泡</span>
+            <span id="badge-flash-pending">0</span>
+          </button>
+          <button type="button" onclick="setFlashSubFilter('pending')" class="hidden" style="display:none;">气泡流 ↗</button>
           <button id="tab-btn-todos" onclick="switchMainView('todos')" class="ln-seg-item">
             <span>✅ 待办清单</span>
             <span id="badge-todo-pending" style="padding: 1px 6px; border-radius: 999px; font-size: 10.5px; font-weight: 600; background: rgba(16, 185, 129, 0.16); color: var(--status-sync-ok);">0</span>
@@ -660,6 +699,29 @@
                 <span class="truncate">⭐ 星标收藏</span>
                 <span id="count-starred" class="ln-nav-count">0</span>
               </button>
+
+              <!-- Dedicated Flash Jottings Notebook with Collapsible Secondary Menu (二级菜单) -->
+              <div style="display: flex; flex-direction: column; margin: 2px 0;">
+                <button id="nav-flash-notebook-parent" type="button" onclick="toggleFlashNotebookMenu()" class="ln-nav-item" style="justify-content: space-between;">
+                  <span class="truncate" style="display: inline-flex; align-items: center; gap: 5px;">
+                    <span>💬 闪念速记本</span>
+                    <span id="flash-submenu-arrow" style="font-size: 10px; color: var(--text-muted); transition: transform 0.15s ease;">▸</span>
+                  </span>
+                  <span id="count-flash-pending" class="ln-nav-count" style="background: var(--ai-badge-bg); color: var(--ai-badge-text); padding: 0 6px; border-radius: 999px; font-weight: 600;">0</span>
+                </button>
+                <div id="flash-submenu-wrap" class="hidden" style="margin: 2px 0 4px 14px; padding-left: 8px; border-left: 1.5px solid var(--border-strong); display: flex; flex-direction: column; gap: 2px;">
+                  <button id="nav-filter-flash-pending" type="button" onclick="setFlashSubFilter('pending')" class="ln-nav-item" style="height: 28px; padding: 0 8px; font-size: 12px;">
+                    <span class="truncate">⚡ 待整理速记</span>
+                    <span id="count-flash-sub-pending" class="ln-nav-count">0</span>
+                  </button>
+                  <button id="nav-filter-flash-archived" type="button" onclick="setFlashSubFilter('archived')" class="ln-nav-item" style="height: 28px; padding: 0 8px; font-size: 12px;">
+                    <span class="truncate">📦 已归档速记</span>
+                    <span id="count-flash-sub-archived" class="ln-nav-count">0</span>
+                  </button>
+                </div>
+              </div>
+
+              <div style="font-size: 10.5px; color: var(--text-placeholder); font-weight: 600; margin: 10px 0 4px 8px; letter-spacing: 0.02em;">正式笔记本</div>
               <div id="sidebar-category-list" style="display: flex; flex-direction: column; gap: 2px;"></div>
               <button id="nav-filter-trash" onclick="setNoteFilter('trash')" class="ln-nav-item">
                 <span class="truncate">🗑️ 回收站</span>
@@ -689,14 +751,47 @@
 
         <!-- Column 2: Middle Note Card Stream (288px) -->
         <section style="width: 288px; flex-shrink: 0; background: var(--bg-list); border-right: 1px solid var(--border-subtle); display: flex; flex-direction: column; overflow: hidden;">
-          <!-- Top Search Bar -->
-          <div style="padding: 12px; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0;">
+          <!-- Top Search Bar (Clean on all formal notebooks; Contextual Flash Drawer appears ONLY inside 💬 闪念速记本) -->
+          <div style="padding: 12px; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; display: flex; flex-direction: column; gap: 8px;">
             <div class="ln-search-wrap">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted); flex-shrink: 0;">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
               <input id="search-input" oninput="handleSearchInput(this.value)" type="text" placeholder="搜索笔记标题、正文或标签..." style="width: 100%; border: none; outline: none; background: transparent; font-size: 12px; color: var(--text-primary);" />
+            </div>
+
+            <!-- Contextual Flash Notebook Drawer (Hidden on all formal categories! Visible ONLY when 💬 闪念速记本 is active) -->
+            <div id="flash-col2-drawer" class="hidden" style="display: none; flex-direction: column; gap: 6px; padding-top: 2px;">
+              <!-- Hidden legacy subtabs to keep DOM IDs intact -->
+              <div class="hidden" style="display: none;">
+                <button id="col2-subtab-pending" type="button" onclick="setFlashSubFilter('pending')">⚡ 待整理 (<span id="col2-count-pending">0</span>)</button>
+                <button id="col2-subtab-archived" type="button" onclick="setFlashSubFilter('archived')">📦 已归档 (<span id="col2-count-archived">0</span>)</button>
+                <button type="button" onclick="synthesizeSelectedFlashesWithAi(false)">拼接</button>
+                <button type="button" onclick="archiveSelectedFlashesDirectly()">📦 归档</button>
+                <button type="button" onclick="unarchiveSelectedFlashes()">↩ 移回待整理</button>
+              </div>
+
+              <!-- Quick Capture Input (Shown in ⚡ 待整理速记) -->
+              <div id="flash-col2-input-row" style="display: flex; align-items: center; gap: 6px; background: #FFFFFF; border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: 4px 8px;">
+                <span style="font-size: 12px;">💬</span>
+                <input id="quick-sidebar-flash-input" onkeydown="if(event.key==='Enter'){event.preventDefault();addFlashBubbleFromInput('quick-sidebar-flash-input');}" type="text" placeholder="速记一句话，按回车即存..." style="flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-size: 12px; color: var(--text-primary);" />
+                <button type="button" onclick="addFlashBubbleFromInput('quick-sidebar-flash-input')" style="border: none; background: var(--btn-primary-bg); color: #FFFFFF; border-radius: 4px; padding: 2px 7px; font-size: 10.5px; font-weight: 600; cursor: pointer; flex-shrink: 0;">存入 ↵</button>
+              </div>
+
+              <!-- Clean 2-Button Batch Synthesis Bar (Shown only in ⚡ 待整理速记) -->
+              <div id="flash-col2-pending-actions" style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                <button type="button" onclick="toggleSelectAllFlashes()" class="ln-btn-secondary" style="height: 26px; padding: 0 8px; font-size: 11px;">☑️ 全选</button>
+                <button type="button" onclick="synthesizeSelectedFlashesWithAi(true)" class="ln-btn-ai" style="flex: 1; height: 26px; padding: 0 10px; font-size: 11.5px; justify-content: center;" title="勾选同主题速记，AI 自动整合成正式分类笔记，原速记自动归档">
+                  <span>🪄 AI 汇总选中项为正式笔记 (<span id="col2-selected-count">0</span>)</span>
+                </button>
+              </div>
+
+              <!-- Clean Archived Status Row (Shown only in 📦 已归档速记) -->
+              <div id="flash-col2-archived-actions" class="hidden" style="display: none; align-items: center; justify-content: space-between; gap: 6px;">
+                <span style="font-size: 11px; color: var(--text-muted);">📦 已归档速记（点击卡片可查看或还原）</span>
+                <button type="button" onclick="clearArchivedFlashes()" class="ln-btn-secondary" style="height: 24px; padding: 0 8px; font-size: 11px; color: var(--text-secondary);">清空已归档</button>
+              </div>
             </div>
           </div>
 
@@ -715,11 +810,13 @@
             </div>
 
             <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
-              <div class="ln-segmented-sm">
+              <span id="typora-mode-status-pill" onclick="toggleTyporaEditFocus()" title="Typora 融合模式：点击正文任意位置直接编辑 Markdown，点击外部或按 Esc 自动渲染排版" style="font-size: 11.5px; color: var(--text-secondary); background: var(--bg-hover); border: 1px solid var(--border-subtle); padding: 3px 10px; border-radius: 999px; cursor: pointer; user-select: none;">✨ 点击正文即改 · Ctrl+V 粘图识字</span>
+              <div class="ln-segmented-sm hidden">
                 <button id="btn-mode-edit" onclick="setEditorMode('edit')" class="ln-seg-item-sm active">✍️ 编辑</button>
                 <button id="btn-mode-preview" onclick="setEditorMode('preview')" class="ln-seg-item-sm">📖 阅读</button>
                 <button id="btn-mode-split" onclick="setEditorMode('split')" class="ln-seg-item-sm">🌓 双栏</button>
               </div>
+              <button id="btn-archive-current-flash" onclick="toggleArchiveCurrentFlashInEditor()" class="ln-btn-secondary hidden" style="height: 28px; padding: 0 10px; font-size: 11.5px;" title="将当前闪念速记移入已归档（或移回待整理）">📦 归档速记</button>
               <button id="btn-restore-note" onclick="restoreCurrentNoteFromTrash()" class="ln-btn-secondary hidden" style="height: 28px; padding: 0 10px; font-size: 11.5px;" title="从回收站恢复该笔记">↩ 恢复</button>
               <button id="btn-toggle-star" onclick="toggleCurrentNoteStar()" class="ln-icon-btn" title="星标收藏">
                 <i data-lucide="star" class="w-4 h-4"></i>
@@ -747,6 +844,9 @@
           <!-- Layer 3: Compact Format Toolbar & Inline Tags -->
           <div id="md-toolbar" style="padding: 8px 24px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; flex-shrink: 0;">
             <div style="display: flex; align-items: center; gap: 3px; flex-wrap: wrap;">
+              <span style="font-size: 11px; color: var(--text-muted); margin-right: 4px;">支持 Markdown 语法直输（# 标题 / **粗体** / - 列表）</span>
+              <button type="button" onclick="insertMdSyntax('- [ ] ', '')" class="ln-icon-btn" style="width: auto; height: 24px; padding: 0 8px; font-size: 11.5px;" title="插入待办复选框 · 与全局待办双向同步 (Ctrl+Shift+T)">☑️ +待办</button>
+              <div class="hidden" style="display:none;">
               <button type="button" onclick="insertMdSyntax('## ', '')" class="ln-icon-btn" style="font-size: 11.5px; font-weight: 700;" title="二级标题 (Ctrl+Shift+2)">H2</button>
               <button type="button" onclick="insertMdSyntax('### ', '')" class="ln-icon-btn" style="font-size: 11.5px; font-weight: 600;" title="三级标题 (Ctrl+Shift+3)">H3</button>
               <button type="button" onclick="insertMdSyntax('**', '**')" class="ln-icon-btn" style="font-size: 12px; font-weight: 700;" title="加粗 (Ctrl+B)">B</button>
@@ -754,6 +854,7 @@
               <button type="button" onclick="insertMdSyntax('- [ ] ', '')" class="ln-icon-btn" style="width: auto; min-width: 28px; padding: 0 7px; font-size: 11.5px;" title="待办复选框 · 与全局待办双向同步 (Ctrl+Shift+T)">☑️ 待办</button>
               <button type="button" onclick="insertMdSyntax('> ', '')" class="ln-icon-btn" style="width: auto; min-width: 28px; padding: 0 7px; font-size: 11.5px;" title="引用块 (Ctrl+Shift+Q)">▍ 引用</button>
               <button type="button" onclick="insertMdSyntax('`', '`')" class="ln-icon-btn" style="width: auto; min-width: 28px; padding: 0 7px; font-size: 11px; font-family: var(--font-mono);" title="行内代码 (Ctrl+E)">&lt;/&gt; 代码</button>
+            </div>
             </div>
 
             <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto;">
@@ -776,9 +877,9 @@
                 oninput="handleNoteEdit('desktop')"
                 onkeydown="handleEditorKeydown(event)"
                 onblur="handleNoteEditorBlur()"
-                placeholder="输入 Markdown 正文（支持 # 标题、**粗体**、| 表格 |、- [ ] 待办复选框，勾选框与全局待办清单实时双向同步）..."
-                class="custom-scroll"
-                style="flex: 1; width: 100%; resize: none; border: none; outline: none; padding: 24px 32px; font-family: var(--font-mono); font-size: 13.5px; line-height: 1.75; color: var(--text-primary); background: var(--bg-editor);"
+                placeholder="直接输入内容（支持 Markdown 语法：# 标题、**粗体**、- [ ] 待办事项；也可直接按 Ctrl+V 粘贴截图自动 OCR 识字）..."
+                class="custom-scroll typora-editor-textarea"
+                style="flex: 1; width: 100%; resize: none; border: none; outline: none; padding: 28px 36px; font-family: var(--font-sans); font-size: 15px; line-height: 1.8; color: var(--text-primary); background: var(--bg-editor);"
               ></textarea>
             </div>
 
@@ -787,11 +888,52 @@
               <div id="split-header-right" class="hidden" style="height: 28px; padding: 0 16px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-app); font-size: 11px; font-weight: 500; color: var(--text-muted); align-items: center; flex-shrink: 0;">
                 实时渲染预览 · 点击待办可直接同步
               </div>
-              <div id="note-md-preview" class="custom-scroll md-preview" style="flex: 1; width: 100%; overflow-y: auto; padding: 24px 32px;"></div>
+              <div id="note-md-preview" onclick="handleTyporaPreviewClick(event, 'desktop')" title="点击任意段落直接进入编辑" class="custom-scroll md-preview" style="flex: 1; width: 100%; overflow-y: auto; padding: 28px 36px;"></div>
             </div>
           </div>
         </main>
       </div>
+
+      <!-- DESKTOP VIEW 1.5: LEGACY CONTAINER (HIDDEN - Flash Jottings now live inside Left Sidebar 💬 闪念速记本) -->
+      <section id="view-flashes" class="hidden" hidden style="display: none;">
+        <div style="max-width: 820px; width: 100%; margin: 0 auto; flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 20px 24px;">
+          <!-- Top Header & Batch AI Action Bar -->
+          <div class="ln-surface-card" style="padding: 14px 18px; margin-bottom: 12px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h2 style="margin: 0; font-size: 15.5px; font-weight: 700; color: var(--text-primary);">💬 闪念气泡流 (<span id="flash-total-count-title">0</span>)</h2>
+                <span style="background: var(--ai-badge-bg); color: var(--ai-badge-text); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px;">自主勾选相似主题 · AI 一键汇总成文</span>
+              </div>
+              <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-muted);">像微信「文件传输助手」一样随手发碎片想法或 Ctrl+V 粘贴截图；空闲时勾选任意 N 条相似主题气泡，交由 AI 汇总整理为正式笔记。</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <button type="button" onclick="toggleSelectAllFlashes()" class="ln-btn-secondary" style="height: 30px; font-size: 12px;">☑️ 全选未归档</button>
+              <button id="btn-ai-merge-flashes" type="button" onclick="synthesizeSelectedFlashesWithAi(true)" class="ln-btn-ai" style="height: 30px; font-size: 12px;">
+                <span>🪄 AI 汇总选中气泡 (<span id="flash-selected-count">0</span>)</span>
+              </button>
+              <button type="button" onclick="synthesizeSelectedFlashesWithAi(false)" class="ln-btn-secondary" style="height: 30px; font-size: 12px;" title="不经过 AI，直接将勾选的气泡按时间顺序合并为一篇正式笔记">📄 直接拼接</button>
+              <button type="button" onclick="clearArchivedFlashes()" class="ln-btn-secondary" style="height: 30px; font-size: 12px;">清理已归档</button>
+            </div>
+          </div>
+
+          <!-- Scrollable Chat Bubble Stream -->
+          <div id="flash-bubble-list-desktop" class="custom-scroll" style="flex: 1; overflow-y: auto; padding: 6px 4px 14px 4px; display: flex; flex-direction: column; gap: 10px;"></div>
+
+          <!-- Bottom WeChat-style Input Bar -->
+          <div class="ln-surface-card" style="padding: 10px 14px; margin-top: 8px; display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+            <input
+              id="flash-input-desktop"
+              type="text"
+              onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();addFlashBubbleFromInput('flash-input-desktop');}"
+              placeholder="输入零碎灵感、电话要点或待办，按回车 Enter 立即发送气泡（支持直接 Ctrl+V 粘贴截图识字）..."
+              class="ln-input"
+              style="flex: 1; height: 36px; font-size: 13.5px;"
+            />
+            <button type="button" onclick="openHandwritingSnapModal()" class="ln-btn-secondary" style="height: 36px;" title="拍照或选图识字">📷 拍图</button>
+            <button type="button" onclick="addFlashBubbleFromInput('flash-input-desktop')" class="ln-btn-primary" style="height: 36px; padding: 0 16px;">发送气泡 ↵</button>
+          </div>
+        </div>
+      </section>
 
       <!-- DESKTOP VIEW 2: GLOBAL TODO LIST CENTER -->
       <section id="view-todos" class="hidden custom-scroll" style="flex: 1; overflow-y: auto; padding: 28px 32px; background: var(--bg-app); width: 100%;">
@@ -1062,6 +1204,24 @@
         <!-- Row 3: Horizontal Scrollable Category Capsules -->
         <div id="m-category-capsules" class="no-scrollbar" style="display: flex; gap: 8px; overflow-x: auto; padding: 4px 0;"></div>
 
+        <!-- Contextual Mobile Flash Submenu & Quick Input (Hidden unless 💬 闪念速记本 is selected) -->
+        <div id="m-flash-list-drawer" class="hidden" style="display: none; flex-direction: column; gap: 6px; padding-top: 6px; margin-top: 4px; border-top: 1px solid var(--border-subtle);">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <button id="m-subtab-pending" type="button" onclick="setFlashSubFilter('pending')" class="ln-btn-secondary" style="flex: 1; height: 26px; font-size: 11.5px;">⚡ 待整理速记</button>
+            <button id="m-subtab-archived" type="button" onclick="setFlashSubFilter('archived')" class="ln-btn-secondary" style="flex: 1; height: 26px; font-size: 11.5px;">📦 已归档速记</button>
+          </div>
+          <div id="m-flash-quick-row" style="display: flex; align-items: center; gap: 6px;">
+            <input id="m-quick-flash-input" onkeydown="if(event.key==='Enter'){event.preventDefault();addFlashBubbleFromInput('m-quick-flash-input');}" type="text" placeholder="💬 记一条闪念速记，回车即存..." class="ln-input" style="flex: 1; height: 32px; font-size: 12.5px;" />
+            <button type="button" onclick="addFlashBubbleFromInput('m-quick-flash-input')" class="ln-btn-primary" style="height: 32px; padding: 0 12px; font-size: 12px;">存入</button>
+          </div>
+          <div id="m-flash-batch-row" style="display: flex; align-items: center; gap: 6px;">
+            <button type="button" onclick="toggleSelectAllFlashes()" class="ln-btn-secondary" style="height: 28px; padding: 0 8px; font-size: 11.5px;">全选</button>
+            <button type="button" onclick="synthesizeSelectedFlashesWithAi(true)" class="ln-btn-ai" style="flex: 1; height: 28px; font-size: 11.5px;">🪄 AI 汇总归档 (<span id="m-col2-selected-count">0</span>)</button>
+            <button type="button" onclick="synthesizeSelectedFlashesWithAi(false)" class="ln-btn-secondary" style="height: 28px; padding: 0 8px; font-size: 11.5px;">拼接</button>
+            <button type="button" onclick="archiveSelectedFlashesDirectly()" class="ln-btn-secondary" style="height: 28px; padding: 0 8px; font-size: 11.5px;">📦 归档</button>
+          </div>
+        </div>
+
         <!-- Optional Active Tag Filter Indicator on Mobile -->
         <div id="m-active-tag-bar" class="hidden" style="padding-top: 4px; align-items: center; justify-content: space-between; font-size: 11.5px; color: var(--text-secondary);">
           <span id="m-active-tag-label">标签筛选</span>
@@ -1083,7 +1243,7 @@
 
         <div style="display: flex; align-items: center; gap: 6px;">
           <button id="m-btn-restore-note" onclick="restoreCurrentNoteFromTrash()" class="ln-btn-secondary hidden" style="height: 30px; padding: 0 8px; font-size: 11.5px;">↩ 恢复</button>
-          <button id="m-btn-toggle-mode" onclick="toggleMobileEditorMode()" class="ln-btn-secondary" style="height: 30px; padding: 0 10px; font-size: 12px;">✍️ 编辑</button>
+          <button id="m-btn-toggle-mode" onclick="toggleMobileEditorMode()" class="ln-btn-secondary hidden" style="height: 30px; padding: 0 10px; font-size: 12px;">✍️ 编辑</button>
           <button id="m-btn-open-ai-sheet" onclick="openMobileAiSheet()" class="ln-btn-ai" style="height: 30px; padding: 0 11px; font-size: 12px;">✨ AI</button>
           <button id="m-btn-delete-note" onclick="deleteCurrentNote()" class="ln-icon-btn danger" title="移入回收站">
             <i data-lucide="trash-2" class="w-4 h-4"></i>
@@ -1126,7 +1286,7 @@
         </div>
 
         <!-- Reading Preview or Markdown Textarea -->
-        <div id="m-note-md-preview" class="md-preview" style="flex: 1; padding-bottom: 16px;"></div>
+        <div id="m-note-md-preview" onclick="handleTyporaPreviewClick(event, 'mobile')" class="md-preview" style="flex: 1; padding-bottom: 16px;"></div>
         <textarea
           id="m-note-content-input"
           oninput="handleNoteEdit('mobile')"
@@ -1148,6 +1308,39 @@
           <button type="button" onclick="focusMobileTagInput()" class="ln-icon-btn" style="width: auto; padding: 0 6px; font-size: 11.5px;" title="添加标签">#标签</button>
         </div>
         <span id="m-autosave-status" style="font-size: 11px; color: var(--text-muted);">已自动保存</span>
+      </div>
+    </div>
+
+    <!-- MOBILE PAGE B.5: LEGACY CONTAINER (HIDDEN) -->
+    <div id="m-screen-flashes" class="hidden" hidden style="display: none;">
+      <header style="padding: 12px 14px 10px; background: var(--bg-header); border-bottom: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 16.5px; font-weight: 700; color: var(--text-primary);">💬 闪念气泡流 (<span id="m-flash-total-count">0</span>)</span>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <button type="button" onclick="toggleSelectAllFlashes()" class="ln-btn-secondary" style="height: 27px; padding: 0 8px; font-size: 11px;">全选未归档</button>
+            <button type="button" onclick="clearArchivedFlashes()" class="ln-btn-secondary" style="height: 27px; padding: 0 8px; font-size: 11px;">清已归档</button>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <button type="button" onclick="synthesizeSelectedFlashesWithAi(true)" class="ln-btn-ai" style="flex: 1; height: 32px; font-size: 12px;">
+            <span>🪄 AI 汇总选中气泡生成正式笔记 (<span id="m-flash-selected-count">0</span>)</span>
+          </button>
+          <button type="button" onclick="synthesizeSelectedFlashesWithAi(false)" class="ln-btn-secondary" style="height: 32px; padding: 0 10px; font-size: 11.5px;">直接拼接</button>
+        </div>
+      </header>
+
+      <div id="flash-bubble-list-mobile" class="custom-scroll" style="flex: 1; overflow-y: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;"></div>
+
+      <div style="padding: 8px 12px; background: var(--bg-editor); border-top: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
+        <input
+          id="flash-input-mobile"
+          type="text"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();addFlashBubbleFromInput('flash-input-mobile');}"
+          placeholder="随手记一条闪念，回车发送..."
+          class="ln-input"
+          style="flex: 1; height: 36px; font-size: 13.5px;"
+        />
+        <button type="button" onclick="addFlashBubbleFromInput('flash-input-mobile')" class="ln-btn-primary" style="height: 36px; padding: 0 14px; flex-shrink: 0;">发送</button>
       </div>
     </div>
 
@@ -1219,6 +1412,10 @@
     <nav id="m-bottom-tabbar" style="height: 56px; background: var(--bg-editor); border-top: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-around; flex-shrink: 0; z-index: 20;">
       <button id="m-nav-notes" onclick="AppLayoutController.setMobileScreen('list')" style="flex: 1; height: 100%; border: none; background: transparent; color: var(--text-primary); font-size: 11.5px; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer;">
         <span>📝 笔记</span>
+      </button>
+      <button id="m-nav-flashes" onclick="setFlashSubFilter('pending')" class="hidden" style="display: none;">
+        <span>💬 闪念</span>
+        <span id="m-badge-flash-pending">0</span>
       </button>
 
       <div style="display: flex; align-items: center; justify-content: center; padding: 0 8px;">
@@ -1308,9 +1505,16 @@
         <div style="border: 1px dashed var(--border-strong); border-radius: var(--radius-lg); padding: 16px; background: var(--bg-app); text-align: center; display: flex; flex-direction: column; gap: 8px;">
           <div style="font-weight: 600; color: var(--text-primary); font-size: 13px;">选择手机语音备忘录或会议录音文件</div>
           <p style="margin: 0; font-size: 11px; color: var(--text-muted); line-height: 1.5;">支持 MP3、M4A、WAV、AAC、OGG、FLAC、OPUS、WEBM 等格式；超过 14MB 自动启用 Gemini Files API 大文件通道。</p>
-          <div style="padding-top: 4px; display: flex; justify-content: center;">
-            <label for="audio-file-input" class="ln-btn-primary" style="cursor: pointer;">📂 选择音频文件</label>
+          <div style="padding-top: 4px; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+            <button id="btn-live-mic-record" type="button" onclick="toggleDirectMicRecording()" class="ln-btn-ai" style="height: 34px; padding: 0 14px; font-weight: 600;">
+              <span id="live-mic-btn-label">🔴 直接开始麦克风录音</span>
+            </button>
+            <label for="audio-file-input" class="ln-btn-secondary" style="height: 34px; cursor: pointer;">📂 或选择本地录音文件</label>
             <input id="audio-file-input" onchange="handleAudioFileSelected(this)" type="file" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.flac,.opus,.webm,.aiff" class="hidden" />
+          </div>
+          <div id="live-mic-status-bar" class="hidden" style="padding: 6px 12px; border-radius: 999px; background: rgba(239, 68, 68, 0.1); color: var(--danger-color); font-weight: 600; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; margin: 4px auto 0 auto;">
+            <span class="ln-dot-pulse" style="width: 8px; height: 8px; border-radius: 999px; background: var(--danger-color);"></span>
+            <span id="live-mic-timer-text">正在录音 00:00（再次点击上方按钮结束录音）</span>
           </div>
           <div id="selected-audio-info" style="color: var(--text-primary); font-weight: 600; font-size: 12px;"></div>
           <div id="audio-preview-wrap" class="hidden" style="padding-top: 4px;">
@@ -1456,7 +1660,15 @@
     let handwritingCompressPromise = null;
     let pendingAudioFile = null;
     let pendingAudioObjectUrl = null;
-    let editorMode = 'edit'; // 'edit' | 'preview' | 'split' (Desktop)
+    let liveMediaRecorder = null;
+    let liveMicStream = null;
+    let liveMicChunks = [];
+    let liveMicTimerInterval = null;
+    let liveMicSeconds = 0;
+    let selectedFlashIds = new Set();
+    let flashSubmenuOpen = false;
+    let activeFlashId = '';
+    let editorMode = 'preview'; // Typora unified mode: defaults to clean rendered preview, click to edit
     let mobileEditorMode = 'preview'; // 'preview' | 'edit' (Mobile 2-state)
     let editingTodoDueId = null; // Active todo ID whose deadline is being edited inline
     let summaryFolded = true;
@@ -1828,8 +2040,39 @@
       }
     ];
 
+    const defaultFlashes = [
+      {
+        id: 'flash-1',
+        text: '王总电话里补充：昆山工厂 3 号线周四下午停机检修 2 小时，我们可以趁这个窗口把视觉相机支架先装上去测试。',
+        source: '💬 随手闪念',
+        createdAt: 1730000100000,
+        archived: false,
+        archivedNoteId: '',
+        archivedNoteTitle: ''
+      },
+      {
+        id: 'flash-2',
+        text: '视觉检测报价单里需要单独列出一项「光源及镜头选配包（1.8万）」，方便王总跟采购部谈折扣时用来让步。',
+        source: '💬 随手闪念',
+        createdAt: 1730000400000,
+        archived: false,
+        archivedNoteId: '',
+        archivedNoteTitle: ''
+      },
+      {
+        id: 'flash-3',
+        text: '下周二去昆山前记得让小陈多带一条 5 米长的千兆工业网线和触发线。',
+        source: '💬 随手闪念',
+        createdAt: 1730000800000,
+        archived: false,
+        archivedNoteId: '',
+        archivedNoteTitle: ''
+      }
+    ];
+
     let appState = {
       notes: [],
+      flashes: [],
       todos: [],
       tools: [],
       customCategories: {},
@@ -1869,6 +2112,7 @@
           const parsed = JSON.parse(raw);
           // Preserve legitimate empty arrays [] instead of resurrecting starter data!
           appState.notes = Array.isArray(parsed.notes) ? parsed.notes : cloneJson(defaultNotes);
+          appState.flashes = Array.isArray(parsed.flashes) ? parsed.flashes : cloneJson(defaultFlashes);
           appState.todos = Array.isArray(parsed.todos) ? parsed.todos : cloneJson(defaultTodos);
           appState.tools = Array.isArray(parsed.tools) ? parsed.tools : cloneJson(defaultTools);
           appState.customCategories = (parsed.customCategories && typeof parsed.customCategories === 'object') ? parsed.customCategories : {};
@@ -1910,6 +2154,7 @@
           }
         } else {
           appState.notes = cloneJson(defaultNotes);
+          appState.flashes = cloneJson(defaultFlashes);
           appState.todos = cloneJson(defaultTodos);
           appState.tools = cloneJson(defaultTools);
           appState.currentNoteId = appState.notes[0] ? appState.notes[0].id : '';
@@ -1926,6 +2171,7 @@
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           notes: appState.notes,
+          flashes: appState.flashes || [],
           todos: appState.todos,
           tools: appState.tools,
           customCategories: appState.customCategories || {},
@@ -2197,6 +2443,82 @@
     function handleNoteEditorBlur() {
       const note = appState.notes.find(n => n.id === appState.currentNoteId);
       if (note) syncNoteMarkdownTasksToTodos(note);
+      // Typora unified behavior: when user clicks outside textarea and note has content, render cleanly
+      setTimeout(() => {
+        const activeEl = document.activeElement;
+        if (activeEl && (activeEl.id === 'note-content-input' || activeEl.id === 'm-note-content-input' || activeEl.closest('#md-toolbar'))) {
+          return;
+        }
+        const activeFlash = getActiveFlashObject();
+        const cur = activeFlash || appState.notes.find(n => n.id === appState.currentNoteId);
+        const bodyTxt = activeFlash ? (activeFlash.text || '') : (cur ? (cur.content || '') : '');
+        if (cur && bodyTxt.trim().length > 0) {
+          if (AppLayoutController.isMobileView()) {
+            if (mobileEditorMode === 'edit') {
+              mobileEditorMode = 'preview';
+              applyMobileEditorModeUI();
+              renderCurrentNoteEditor();
+            }
+          } else if (editorMode === 'edit') {
+            setEditorMode('preview');
+          }
+        }
+      }, 120);
+    }
+
+    function handleTyporaPreviewClick(event, targetShell) {
+      if (!event) return;
+      const tag = event.target && event.target.tagName ? event.target.tagName.toUpperCase() : '';
+      if (tag === 'INPUT' || tag === 'A' || tag === 'BUTTON' || (event.target && event.target.closest('a, button, input'))) {
+        return;
+      }
+      const sel = window.getSelection ? String(window.getSelection().toString() || '') : '';
+      if (sel.length > 0) return; // Allow normal text selection/copying without jumping!
+
+      const activeFlash = getActiveFlashObject();
+      const cur = activeFlash || appState.notes.find(n => n.id === appState.currentNoteId);
+      if (!cur || cur.trashed) return;
+
+      const clickedBlock = event.target ? event.target.closest('p, li, h1, h2, h3, h4, blockquote, pre, td, th') : null;
+      const clickedSnippet = clickedBlock ? String(clickedBlock.innerText || '').trim().slice(0, 24) : '';
+
+      if (targetShell === 'mobile' || AppLayoutController.isMobileView()) {
+        mobileEditorMode = 'edit';
+        applyMobileEditorModeUI();
+        renderCurrentNoteEditor();
+        const mInput = document.getElementById('m-note-content-input');
+        if (mInput && !mInput.disabled) {
+          mInput.focus();
+          placeCaretNearSnippet(mInput, clickedSnippet);
+        }
+      } else {
+        setEditorMode('edit');
+        const dInput = document.getElementById('note-content-input');
+        if (dInput && !dInput.disabled) {
+          dInput.focus();
+          placeCaretNearSnippet(dInput, clickedSnippet);
+        }
+      }
+    }
+
+    function placeCaretNearSnippet(textarea, snippet) {
+      if (!textarea || !snippet) return;
+      const raw = textarea.value || '';
+      const idx = raw.indexOf(snippet);
+      if (idx !== -1) {
+        const pos = idx + snippet.length;
+        textarea.setSelectionRange(pos, pos);
+      }
+    }
+
+    function toggleTyporaEditFocus() {
+      if (editorMode === 'edit') {
+        setEditorMode('preview');
+      } else {
+        setEditorMode('edit');
+        const dInput = document.getElementById('note-content-input');
+        if (dInput && !dInput.disabled) dInput.focus();
+      }
     }
 
     // Direction 1: Toggling checkbox inside Note Preview -> updates appState.todos (both Desktop & Mobile previews!)
@@ -2289,6 +2611,18 @@
     }
 
     function handleEditorKeydown(e) {
+      if (e.key === 'Escape' || ((e.ctrlKey || e.metaKey) && e.key === 'Enter')) {
+        e.preventDefault();
+        e.target.blur();
+        if (AppLayoutController.isMobileView()) {
+          mobileEditorMode = 'preview';
+          applyMobileEditorModeUI();
+          renderCurrentNoteEditor();
+        } else {
+          setEditorMode('preview');
+        }
+        return;
+      }
       if (!(e.ctrlKey || e.metaKey)) return;
       const key = String(e.key || '').toLowerCase();
       if (!e.shiftKey && key === 'b') {
@@ -2382,6 +2716,12 @@
         splitRight.classList.toggle('hidden', !isSplit);
         splitLeft.style.display = isSplit ? 'flex' : 'none';
         splitRight.style.display = isSplit ? 'flex' : 'none';
+      }
+      const pill = document.getElementById('typora-mode-status-pill');
+      if (pill) {
+        pill.textContent = mode === 'edit'
+          ? '✍️ 编辑源码中 · 按 Esc 或点外部自动排版'
+          : '✨ 点击正文即改 · Ctrl+V 粘图识字';
       }
       renderCurrentNoteEditor();
     }
@@ -2487,14 +2827,14 @@
 
       setMobileScreen(screen) {
         this.mobileScreen = screen || 'list';
-        ['list', 'detail', 'todos', 'settings'].forEach(s => {
+        ['list', 'detail', 'flashes', 'todos', 'settings'].forEach(s => {
           const el = document.getElementById('m-screen-' + s);
           if (el) el.hidden = (s !== this.mobileScreen);
         });
         const tabbar = document.getElementById('m-bottom-tabbar');
         if (tabbar) tabbar.hidden = (this.mobileScreen === 'detail');
 
-        const navMap = { list: 'm-nav-notes', todos: 'm-nav-todos', settings: 'm-nav-sync' };
+        const navMap = { list: 'm-nav-notes', flashes: 'm-nav-flashes', todos: 'm-nav-todos', settings: 'm-nav-sync' };
         Object.keys(navMap).forEach(key => {
           const btn = document.getElementById(navMap[key]);
           if (btn) {
@@ -2577,6 +2917,7 @@
       renderSidebarCountsAndTags();
       renderNoteList();
       renderCurrentNoteEditor();
+      renderFlashBubbles();
       renderTodoLists();
       renderEditorAiToolDock();
       renderToolHubGrid();
@@ -2589,11 +2930,28 @@
       }
     }
 
+    function isFlashFilterActive() {
+      return appState.currentFilter === 'flash-pending' || appState.currentFilter === 'flash-archived';
+    }
+
+    function getActiveFlashObject() {
+      if (!isFlashFilterActive() || !Array.isArray(appState.flashes)) return null;
+      return appState.flashes.find(f => f.id === activeFlashId) || null;
+    }
+
     function renderCategorySelectors() {
       const cats = getAllCategoriesMeta();
-      const note = appState.notes.find(n => n.id === appState.currentNoteId);
-      const currentCat = (note && note.category) ? note.category : '灵感随笔类';
-      const optionsHtml = Object.keys(cats).map(cat => {
+      const activeFlash = getActiveFlashObject();
+      const note = !activeFlash ? appState.notes.find(n => n.id === appState.currentNoteId) : null;
+      const currentCat = activeFlash
+        ? '__FLASH_NOTEBOOK__'
+        : ((note && note.category) ? note.category : '灵感随笔类');
+
+      const flashOptionHtml = activeFlash
+        ? `<option value="__FLASH_NOTEBOOK__">💬 闪念速记本（选下方分类可直接转为正式笔记）</option>`
+        : '';
+
+      const optionsHtml = flashOptionHtml + Object.keys(cats).map(cat => {
         const meta = cats[cat];
         return `<option value="${escapeHtml(cat)}">${meta.icon} ${escapeHtml(cat)}</option>`;
       }).join('') + `<option value="__ADD_CUSTOM__">➕ 新增自定义分类...</option>`;
@@ -2602,8 +2960,8 @@
         const sel = document.getElementById(id);
         if (sel) {
           sel.innerHTML = optionsHtml;
-          sel.value = cats[currentCat] ? currentCat : '灵感随笔类';
-          sel.disabled = !note;
+          sel.value = activeFlash ? '__FLASH_NOTEBOOK__' : (cats[currentCat] ? currentCat : '灵感随笔类');
+          sel.disabled = (!note && !activeFlash);
         }
       });
     }
@@ -2668,12 +3026,26 @@
       views.forEach(v => {
         const el = document.getElementById('view-' + v);
         const btn = document.getElementById('tab-btn-' + v);
-        if (el) el.classList.toggle('hidden', v !== targetView);
+        if (el) {
+          el.classList.toggle('hidden', v !== targetView);
+          el.style.display = (v === targetView) ? (v === 'notes' ? 'flex' : 'block') : 'none';
+        }
         if (btn) btn.className = 'ln-seg-item' + (v === targetView ? ' active' : '');
       });
+      const legacyFlashes = document.getElementById('view-flashes');
+      if (legacyFlashes) {
+        legacyFlashes.classList.add('hidden');
+        legacyFlashes.style.display = 'none';
+      }
+
+      if (targetView === 'flashes') {
+        renderFlashBubbles();
+        const fIn = document.getElementById('flash-input-desktop');
+        if (fIn && !AppLayoutController.isMobileView()) setTimeout(() => fIn.focus(), 50);
+      }
 
       if (AppLayoutController.isMobileView()) {
-        const mobileMap = { notes: 'list', todos: 'todos', sync: 'settings' };
+        const mobileMap = { notes: 'list', flashes: 'flashes', todos: 'todos', sync: 'settings' };
         AppLayoutController.setMobileScreen(mobileMap[targetView] || 'list');
       }
       if (window.lucide) window.lucide.createIcons();
@@ -2699,8 +3071,11 @@
         ? 'height: 28px; padding: 0 11px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; border: 1px solid #18181B; background: #18181B; color: #FFFFFF; cursor: pointer; flex-shrink: 0;'
         : 'height: 28px; padding: 0 11px; border-radius: 999px; font-size: 12px; font-weight: 500; white-space: nowrap; border: 1px solid var(--border-subtle); background: #F4F4F5; color: #52525B; cursor: pointer; flex-shrink: 0;';
 
+      const pendingFlashesCount = (appState.flashes || []).filter(f => !f.archived).length;
+      const isFlashMode = isFlashFilterActive();
       const items = [
         `<button onclick="setNoteFilter('all')" style="${pillStyle(isAll)}">全部 ${activeNotes.length}</button>`,
+        `<button onclick="setFlashSubFilter('pending')" style="${pillStyle(isFlashMode)}">💬 闪念速记 ${pendingFlashesCount}</button>`,
         `<button onclick="setNoteFilter('starred')" style="${pillStyle(isStarred)}">⭐ 星标 ${starredNotes.length}</button>`
       ];
 
@@ -2747,12 +3122,34 @@
       if (cTrash) cTrash.textContent = trashedNotes.length;
 
       const isAll = appState.currentFilter === 'all' && !appState.currentCategoryFilter;
+      const isFlashPending = appState.currentFilter === 'flash-pending';
+      const isFlashArchived = appState.currentFilter === 'flash-archived';
+      const isFlashAny = isFlashPending || isFlashArchived;
+
       const allBtn = document.getElementById('nav-filter-all');
       const starBtn = document.getElementById('nav-filter-starred');
       const trashBtn = document.getElementById('nav-filter-trash');
+      const flashParentBtn = document.getElementById('nav-flash-notebook-parent');
+      const flashSubWrap = document.getElementById('flash-submenu-wrap');
+      const flashArrow = document.getElementById('flash-submenu-arrow');
+      const flashPendBtn = document.getElementById('nav-filter-flash-pending');
+      const flashArchBtn = document.getElementById('nav-filter-flash-archived');
+
       if (allBtn) allBtn.className = 'ln-nav-item' + (isAll ? ' active' : '');
       if (starBtn) starBtn.className = 'ln-nav-item' + (appState.currentFilter === 'starred' ? ' active' : '');
       if (trashBtn) trashBtn.className = 'ln-nav-item' + (appState.currentFilter === 'trash' ? ' active' : '');
+      if (flashParentBtn) flashParentBtn.className = 'ln-nav-item' + (isFlashAny ? ' active' : '');
+      if (flashPendBtn) flashPendBtn.className = 'ln-nav-item' + (isFlashPending ? ' active' : '');
+      if (flashArchBtn) flashArchBtn.className = 'ln-nav-item' + (isFlashArchived ? ' active' : '');
+
+      const showSubmenu = Boolean(flashSubmenuOpen);
+      if (flashSubWrap) {
+        flashSubWrap.classList.toggle('hidden', !showSubmenu);
+        flashSubWrap.style.display = showSubmenu ? 'flex' : 'none';
+      }
+      if (flashArrow) {
+        flashArrow.textContent = showSubmenu ? '▾' : '▸';
+      }
 
       const allCats = getAllCategoriesMeta();
       const catContainer = document.getElementById('sidebar-category-list');
@@ -2888,12 +3285,32 @@
 
       const listEl = document.getElementById('note-list-container');
       const mListEl = document.getElementById('m-note-list-container');
+
+      // Show contextual flash drawer ONLY when inside 💬 闪念速记本
+      const isFlashMode = isFlashFilterActive();
+      const isArchivedSub = appState.currentFilter === 'flash-archived';
+      const col2Drawer = document.getElementById('flash-col2-drawer');
+      const mDrawer = document.getElementById('m-flash-list-drawer');
+      if (col2Drawer) {
+        col2Drawer.classList.toggle('hidden', !isFlashMode);
+        col2Drawer.style.display = isFlashMode ? 'flex' : 'none';
+      }
+      if (mDrawer) {
+        mDrawer.classList.toggle('hidden', !isFlashMode);
+        mDrawer.style.display = isFlashMode ? 'flex' : 'none';
+      }
+
+      if (isFlashMode) {
+        renderFlashNotebookList(listEl, mListEl, isArchivedSub);
+        return;
+      }
+
       const filtered = getFilteredNotes();
 
       if (filtered.length === 0) {
         const emptyHtml = `
           <div style="padding: 36px 16px; text-align: center; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 10px;">
-            <div style="font-size: 12px;">暂无匹配的笔记</div>
+            <div style="font-size: 12px;">暂无匹配的正式笔记</div>
             <button onclick="createNewNote()" class="ln-btn-secondary" style="height: 28px; font-size: 12px;">+ 新建笔记</button>
           </div>
         `;
@@ -2911,7 +3328,34 @@
     }
 
     function renderCurrentNoteEditor() {
-      const note = appState.notes.find(n => n.id === appState.currentNoteId);
+      const activeFlash = getActiveFlashObject();
+      const archiveFlashBtn = document.getElementById('btn-archive-current-flash');
+      if (archiveFlashBtn) {
+        if (activeFlash) {
+          archiveFlashBtn.classList.remove('hidden');
+          archiveFlashBtn.textContent = activeFlash.archived ? '↩ 移回待整理' : '📦 归档此速记';
+        } else {
+          archiveFlashBtn.classList.add('hidden');
+        }
+      }
+
+      const note = activeFlash
+        ? {
+            id: activeFlash.id,
+            title: activeFlash.title || (`💬 闪念速记 (${formatFlashTime(activeFlash.createdAt)})`),
+            category: '__FLASH_NOTEBOOK__',
+            summary: activeFlash.archived
+              ? `• 状态：已归档速记${activeFlash.archivedNoteTitle ? ('（已汇总至《' + activeFlash.archivedNoteTitle + '》）') : ''}\n• 提示：可在左侧勾选多条速记一键 AI 汇总，或在上方下拉框直接改为正式分类。`
+              : `• 状态：⚡ 待整理闪念速记（记录于 ${formatFlashTime(activeFlash.createdAt)}）\n• 归档方式：① 左侧勾选多条点击「🪄 AI 汇总归档」 ② 点击右上角「📦 归档此速记」 ③ 左上角下拉框直接选正式笔记本分类。`,
+            content: activeFlash.text || '',
+            tags: ['闪念速记'],
+            starred: false,
+            trashed: false,
+            localRev: 1,
+            driveRev: 1,
+            updatedAt: activeFlash.createdAt
+          }
+        : appState.notes.find(n => n.id === appState.currentNoteId);
 
       // Desktop Elements
       const titleInput = document.getElementById('note-title-input');
@@ -3715,6 +4159,7 @@
     }
 
     function closeAudioUploadModal() {
+      stopDirectMicStreamOnly();
       revokePendingAudioPreview();
       const modal = document.getElementById('modal-audio-upload');
       if (modal) {
@@ -3878,6 +4323,13 @@ ${styleInstruction}`;
     }
 
     async function autoClassifyAndSummarizeCurrentNote() {
+      if (isFlashFilterActive()) {
+        if (selectedFlashIds.size === 0 && activeFlashId) {
+          selectedFlashIds.add(activeFlashId);
+        }
+        await synthesizeSelectedFlashesWithAi(true);
+        return;
+      }
       const note = appState.notes.find(n => n.id === appState.currentNoteId);
       if (!note) return;
       if (!(note.content || '').trim() && !(note.title || '').trim()) {
@@ -4665,6 +5117,23 @@ function doPost(e) {
         appState.todos = Array.from(todoMap.values()).filter(t => !mergedDeletedIds.includes(t.id));
       }
 
+      // 3. Merge Flash Bubbles by ID
+      if (Array.isArray(remoteData.flashes)) {
+        const flashMap = new Map();
+        (appState.flashes || []).forEach(f => flashMap.set(f.id, f));
+        remoteData.flashes.forEach(rFlash => {
+          if (!rFlash || !rFlash.id || mergedDeletedIds.includes(rFlash.id)) return;
+          const lFlash = flashMap.get(rFlash.id);
+          if (!lFlash || (rFlash.archived && !lFlash.archived)) {
+            flashMap.set(rFlash.id, rFlash);
+            hasNewChangesFromRemote = true;
+          }
+        });
+        appState.flashes = Array.from(flashMap.values())
+          .filter(f => !mergedDeletedIds.includes(f.id))
+          .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+      }
+
       // Maintain valid currentNoteId (while respecting empty notes list)
       if (appState.notes.length === 0) {
         appState.currentNoteId = '';
@@ -4692,6 +5161,7 @@ function doPost(e) {
       const payloadStr = JSON.stringify({
         updatedAt: Date.now(),
         notes: notesForUpload,
+        flashes: appState.flashes || [],
         todos: appState.todos,
         customCategories: appState.customCategories || {},
         deletedIds: appState.deletedIds || []
@@ -5004,6 +5474,21 @@ function doPost(e) {
     }
 
     function handleCategoryChange(newCat) {
+      const activeFlash = getActiveFlashObject();
+      if (activeFlash) {
+        if (newCat === '__FLASH_NOTEBOOK__') return;
+        let targetCat = newCat;
+        if (newCat === '__ADD_CUSTOM__') {
+          const created = promptAddCustomCategory();
+          if (!created) {
+            renderAll();
+            return;
+          }
+          targetCat = created;
+        }
+        promoteSingleFlashToFormalCategory(activeFlash.id, targetCat);
+        return;
+      }
       const note = appState.notes.find(n => n.id === appState.currentNoteId);
       if (!note) return;
       if (newCat === '__ADD_CUSTOM__') {
@@ -5031,6 +5516,36 @@ function doPost(e) {
     }
 
     function handleNoteEdit(source) {
+      const activeFlash = getActiveFlashObject();
+      if (activeFlash) {
+        const dTitleEl = document.getElementById('note-title-input');
+        const dContentEl = document.getElementById('note-content-input');
+        const mTitleEl = document.getElementById('m-note-title-input');
+        const mContentEl = document.getElementById('m-note-content-input');
+        const fromMobile = source === 'mobile' || (!source && AppLayoutController.isMobileView());
+        if (fromMobile) {
+          if (mTitleEl) activeFlash.title = mTitleEl.value;
+          if (mContentEl) activeFlash.text = mContentEl.value;
+          if (dTitleEl) dTitleEl.value = activeFlash.title || '';
+          if (dContentEl) dContentEl.value = activeFlash.text || '';
+        } else {
+          if (dTitleEl) activeFlash.title = dTitleEl.value;
+          if (dContentEl) activeFlash.text = dContentEl.value;
+          if (mTitleEl) mTitleEl.value = activeFlash.title || '';
+          if (mContentEl) mContentEl.value = activeFlash.text || '';
+        }
+        const renderedMd = renderSimpleMarkdown(activeFlash.text || '');
+        const previewEl = document.getElementById('note-md-preview');
+        const mPreviewEl = document.getElementById('m-note-md-preview');
+        if (previewEl) previewEl.innerHTML = renderedMd;
+        if (mPreviewEl) mPreviewEl.innerHTML = renderedMd;
+        const charCount = document.getElementById('char-count-info');
+        if (charCount) charCount.textContent = `${(activeFlash.text || '').length} 字`;
+        saveState();
+        renderNoteList();
+        scheduleDebouncedDriveSync();
+        return;
+      }
       const note = appState.notes.find(n => n.id === appState.currentNoteId);
       if (!note) return;
 
@@ -5406,7 +5921,7 @@ function doPost(e) {
 
       const dynamicIds = [
         'note-list-container', 'm-note-list-container',
-        'full-todo-list-container', 'm-todo-list-container',
+        'full-todo-list-container', 'm-todo-list-container', 'flash-bubble-list-desktop', 'flash-bubble-list-mobile',
         'sync-log-list', 'toast-container',
         'note-md-preview', 'm-note-md-preview',
         'note-tags-container', 'm-note-tags-container',
@@ -5426,7 +5941,7 @@ function doPost(e) {
         'input-google-client-id', 'input-drive-token',
         'note-title-input', 'm-note-title-input',
         'note-content-input', 'm-note-content-input',
-        'search-input', 'm-search-input',
+        'search-input', 'm-search-input', 'quick-sidebar-flash-input', 'flash-input-desktop', 'flash-input-mobile',
         'full-todo-input', 'full-todo-due', 'm-todo-input', 'm-todo-due',
         'handwriting-manual-text', 'audio-manual-context'
       ];
@@ -5462,6 +5977,27 @@ function doPost(e) {
     // 7. NOTE CRUD, TRASH RESTORE, CUSTOM AI TOOLS & UTILITIES
     // =========================================================================
     function createNewNote() {
+      if (isFlashFilterActive()) {
+        const createdFlash = addFlashBubble('', '💬 随手闪念', true);
+        if (createdFlash) {
+          appState.currentFilter = 'flash-pending';
+          activeFlashId = createdFlash.id;
+          setEditorMode('edit');
+          mobileEditorMode = 'edit';
+          applyMobileEditorModeUI();
+          renderAll();
+          const dIn = document.getElementById('note-content-input');
+          const mIn = document.getElementById('m-note-content-input');
+          if (AppLayoutController.isMobileView()) {
+            AppLayoutController.setMobileScreen('detail');
+            if (mIn) mIn.focus();
+          } else if (dIn) {
+            dIn.focus();
+          }
+          showToast('💬 已新建一条闪念速记，可直接打字或按 Ctrl+V 粘贴截图');
+        }
+        return;
+      }
       const nowTs = Date.now();
       const newNote = {
         id: 'note-' + nowTs,
@@ -5506,6 +6042,15 @@ function doPost(e) {
 
     function selectNote(noteId) {
       appState.currentNoteId = noteId;
+      const picked = appState.notes.find(n => n.id === noteId);
+      const hasBody = Boolean(picked && (picked.content || '').trim().length > 0);
+      if (AppLayoutController.isMobileView()) {
+        mobileEditorMode = hasBody ? 'preview' : 'edit';
+        applyMobileEditorModeUI();
+      } else if (editorMode !== 'split') {
+        editorMode = hasBody ? 'preview' : 'edit';
+        setEditorMode(editorMode);
+      }
       saveState();
       renderCategorySelectors();
       renderNoteList();
@@ -5516,17 +6061,72 @@ function doPost(e) {
       appState.currentFilter = filterType;
       appState.currentCategoryFilter = null;
       appState.currentTagFilter = null;
+      flashSubmenuOpen = false;
+      activeFlashId = '';
       const filtered = getFilteredNotes();
       appState.currentNoteId = filtered.length > 0 ? filtered[0].id : '';
+      if (appState.currentNoteId) selectNote(appState.currentNoteId);
       renderAll();
     }
 
     function setCategoryFilter(cat) {
       appState.currentCategoryFilter = appState.currentCategoryFilter === cat ? null : cat;
       appState.currentFilter = 'all';
+      flashSubmenuOpen = false;
+      activeFlashId = '';
       const filtered = getFilteredNotes();
       appState.currentNoteId = filtered.length > 0 ? filtered[0].id : '';
+      if (appState.currentNoteId) selectNote(appState.currentNoteId);
       renderAll();
+    }
+
+    function toggleFlashNotebookMenu() {
+      if (flashSubmenuOpen) {
+        flashSubmenuOpen = false;
+        renderSidebarCountsAndTags();
+      } else {
+        flashSubmenuOpen = true;
+        if (!isFlashFilterActive()) {
+          setFlashSubFilter('pending');
+        } else {
+          renderSidebarCountsAndTags();
+        }
+      }
+    }
+
+    function setFlashSubFilter(subMode) {
+      flashSubmenuOpen = true;
+      appState.currentCategoryFilter = null;
+      appState.currentTagFilter = null;
+      appState.currentFilter = subMode === 'archived' ? 'flash-archived' : 'flash-pending';
+      const isArch = appState.currentFilter === 'flash-archived';
+      const list = (appState.flashes || []).filter(f => Boolean(f.archived) === isArch);
+      activeFlashId = list.length > 0 ? list[list.length - 1].id : '';
+      const hasBody = Boolean(activeFlashId);
+      if (!AppLayoutController.isMobileView() && editorMode !== 'split') {
+        editorMode = hasBody ? 'preview' : 'edit';
+        setEditorMode(editorMode);
+      }
+      renderAll();
+    }
+
+    function selectFlashInNotebook(flashId, openMobileDetail = false) {
+      activeFlashId = flashId;
+      const fObj = getActiveFlashObject();
+      const hasBody = Boolean(fObj && (fObj.text || '').trim().length > 0);
+      if (AppLayoutController.isMobileView()) {
+        mobileEditorMode = hasBody ? 'preview' : 'edit';
+        applyMobileEditorModeUI();
+        if (openMobileDetail) {
+          AppLayoutController.setMobileScreen('detail');
+        }
+      } else if (editorMode !== 'split') {
+        editorMode = hasBody ? 'preview' : 'edit';
+        setEditorMode(editorMode);
+      }
+      renderCategorySelectors();
+      renderNoteList();
+      renderCurrentNoteEditor();
     }
 
     function setTagFilter(tag) {
@@ -5576,6 +6176,11 @@ function doPost(e) {
     }
 
     function deleteCurrentNote() {
+      const activeFlash = getActiveFlashObject();
+      if (activeFlash) {
+        deleteFlashBubble(activeFlash.id);
+        return;
+      }
       const note = appState.notes.find(n => n.id === appState.currentNoteId);
       if (!note) return;
       if (!note.trashed) {
@@ -6005,11 +6610,777 @@ function doPost(e) {
       }
     });
 
+
+    // =========================================================================
+    // 8. V6 ZERO-FRICTION UPGRADES:
+    //    - WeChat-Style Flash Bubble Stream + Multi-Select AI Synthesis (#3)
+    //    - Direct Browser Microphone Recording via MediaRecorder (#2)
+    //    - Global Ctrl+V Clipboard Image OCR & Drag-and-Drop (#1)
+    // =========================================================================
+
+    function formatFlashTime(ts) {
+      const d = new Date(ts || Date.now());
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const hh = String(d.getHours()).padStart(2, '0');
+      const min = String(d.getMinutes()).padStart(2, '0');
+      return `${mm}-${dd} ${hh}:${min}`;
+    }
+
+    function addFlashBubble(text, sourceLabel = '💬 随手闪念', allowEmpty = false) {
+      const clean = String(text || '').trim();
+      if (!clean && !allowEmpty) return null;
+      if (!Array.isArray(appState.flashes)) appState.flashes = [];
+      const nowTs = Date.now();
+      const item = {
+        id: 'flash-' + nowTs + '-' + Math.random().toString(36).slice(2, 6),
+        title: clean ? clean.slice(0, 22) : `💬 闪念速记 (${formatFlashTime(nowTs)})`,
+        text: clean,
+        source: sourceLabel,
+        createdAt: nowTs,
+        archived: false,
+        archivedNoteId: '',
+        archivedNoteTitle: ''
+      };
+      appState.flashes.push(item);
+      activeFlashId = item.id;
+      saveState();
+      renderAll();
+      scheduleDebouncedDriveSync();
+      return item;
+    }
+
+    function addFlashBubbleFromInput(inputId) {
+      const el = document.getElementById(inputId);
+      if (!el) return;
+      const val = String(el.value || '').trim();
+      if (!val) {
+        showToast('请输入一条闪念速记内容后再按回车');
+        return;
+      }
+      el.value = '';
+      appState.currentFilter = 'flash-pending';
+      flashSubmenuOpen = true;
+      const item = addFlashBubble(val, '💬 随手闪念', false);
+      if (item) {
+        selectFlashInNotebook(item.id, false);
+      }
+      showToast('💬 已存入「闪念速记本 ➔ 待整理速记」');
+    }
+
+    function toggleFlashSelection(flashId, ev) {
+      if (ev && ev.stopPropagation) ev.stopPropagation();
+      if (selectedFlashIds.has(flashId)) {
+        selectedFlashIds.delete(flashId);
+      } else {
+        selectedFlashIds.add(flashId);
+      }
+      renderFlashBubbles();
+      renderNoteList();
+    }
+
+    function toggleSelectAllFlashes() {
+      const isArch = appState.currentFilter === 'flash-archived';
+      const targetList = (appState.flashes || []).filter(f => Boolean(f.archived) === isArch);
+      if (targetList.length === 0) {
+        showToast('当前列表没有可勾选的闪念速记');
+        return;
+      }
+      const allSelected = targetList.every(f => selectedFlashIds.has(f.id));
+      if (allSelected) {
+        targetList.forEach(f => selectedFlashIds.delete(f.id));
+      } else {
+        targetList.forEach(f => selectedFlashIds.add(f.id));
+      }
+      renderFlashBubbles();
+      renderNoteList();
+    }
+
+    function archiveSingleFlash(flashId, ev) {
+      if (ev && ev.stopPropagation) ev.stopPropagation();
+      const target = (appState.flashes || []).find(f => f.id === flashId);
+      if (!target) return;
+      target.archived = true;
+      selectedFlashIds.delete(flashId);
+      if (activeFlashId === flashId) {
+        const remaining = (appState.flashes || []).filter(f => !f.archived);
+        activeFlashId = remaining.length > 0 ? remaining[remaining.length - 1].id : '';
+      }
+      saveState();
+      renderAll();
+      scheduleDebouncedDriveSync();
+      showToast('📦 已移入「闪念速记本 ➔ 已归档速记」');
+    }
+
+    function unarchiveSingleFlash(flashId, ev) {
+      if (ev && ev.stopPropagation) ev.stopPropagation();
+      const target = (appState.flashes || []).find(f => f.id === flashId);
+      if (!target) return;
+      target.archived = false;
+      selectedFlashIds.delete(flashId);
+      if (activeFlashId === flashId) {
+        const remaining = (appState.flashes || []).filter(f => f.archived);
+        activeFlashId = remaining.length > 0 ? remaining[remaining.length - 1].id : '';
+      }
+      saveState();
+      renderAll();
+      scheduleDebouncedDriveSync();
+      showToast('↩ 已移回「待整理速记」');
+    }
+
+    function toggleArchiveCurrentFlashInEditor() {
+      const activeFlash = getActiveFlashObject();
+      if (!activeFlash) return;
+      if (activeFlash.archived) {
+        unarchiveSingleFlash(activeFlash.id);
+      } else {
+        archiveSingleFlash(activeFlash.id);
+      }
+    }
+
+    function archiveSelectedFlashesDirectly() {
+      let chosen = (appState.flashes || []).filter(f => !f.archived && selectedFlashIds.has(f.id));
+      if (chosen.length === 0 && activeFlashId) {
+        const cur = (appState.flashes || []).find(f => f.id === activeFlashId && !f.archived);
+        if (cur) chosen = [cur];
+      }
+      if (chosen.length === 0) {
+        showToast('⚠️ 请先勾选要直接归档的闪念速记');
+        return;
+      }
+      chosen.forEach(f => {
+        f.archived = true;
+        selectedFlashIds.delete(f.id);
+      });
+      const remaining = (appState.flashes || []).filter(f => !f.archived);
+      activeFlashId = remaining.length > 0 ? remaining[remaining.length - 1].id : '';
+      saveState();
+      renderAll();
+      scheduleDebouncedDriveSync();
+      showToast(`📦 已将 ${chosen.length} 条速记移入「已归档速记」`);
+    }
+
+    function unarchiveSelectedFlashes() {
+      let chosen = (appState.flashes || []).filter(f => f.archived && selectedFlashIds.has(f.id));
+      if (chosen.length === 0) {
+        chosen = (appState.flashes || []).filter(f => f.archived);
+      }
+      if (chosen.length === 0) {
+        showToast('当前没有已归档的闪念速记');
+        return;
+      }
+      chosen.forEach(f => {
+        f.archived = false;
+        selectedFlashIds.delete(f.id);
+      });
+      saveState();
+      renderAll();
+      scheduleDebouncedDriveSync();
+      showToast(`↩ 已将 ${chosen.length} 条速记移回「待整理速记」`);
+    }
+
+    function promoteSingleFlashToFormalCategory(flashId, targetCategory) {
+      const fObj = (appState.flashes || []).find(f => f.id === flashId);
+      if (!fObj) return;
+      const nowTs = Date.now();
+      const cleanBody = String(fObj.text || '').trim();
+      const newNote = {
+        id: 'note-' + nowTs,
+        title: fObj.title || cleanBody.slice(0, 24) || '💬 闪念转正式笔记',
+        category: targetCategory || '灵感随笔类',
+        summary: `• 由闪念速记（${formatFlashTime(fObj.createdAt)}）直接归档升级为正式笔记。`,
+        content: cleanBody,
+        tags: ['闪念转正'],
+        starred: targetCategory === '客户情报类',
+        trashed: false,
+        localRev: 1,
+        driveRev: 0,
+        lastSyncedAt: 0,
+        baseContent: '',
+        isDirty: true,
+        lastModifiedBy: '💬 闪念归档',
+        updatedAt: nowTs
+      };
+      appState.notes.unshift(newNote);
+      syncNoteMarkdownTasksToTodos(newNote);
+
+      fObj.archived = true;
+      fObj.archivedNoteId = newNote.id;
+      fObj.archivedNoteTitle = newNote.title;
+      selectedFlashIds.delete(fObj.id);
+
+      appState.currentFilter = 'all';
+      appState.currentCategoryFilter = targetCategory;
+      appState.currentNoteId = newNote.id;
+      activeFlashId = '';
+      saveState();
+      scheduleLocalHardDriveWrite(newNote);
+      renderAll();
+      scheduleDebouncedDriveSync();
+      showToast(`✅ 已将该条闪念升级至【${targetCategory}】，原速记已自动归档！`);
+    }
+
+    function deleteFlashBubble(flashId) {
+      if (!Array.isArray(appState.flashes)) return;
+      appState.flashes = appState.flashes.filter(f => f.id !== flashId);
+      selectedFlashIds.delete(flashId);
+      if (!appState.deletedIds) appState.deletedIds = [];
+      if (!appState.deletedIds.includes(flashId)) appState.deletedIds.push(flashId);
+      if (activeFlashId === flashId) {
+        const isArch = appState.currentFilter === 'flash-archived';
+        const remaining = appState.flashes.filter(f => Boolean(f.archived) === isArch);
+        activeFlashId = remaining.length > 0 ? remaining[remaining.length - 1].id : '';
+      }
+      saveState();
+      renderAll();
+      scheduleDebouncedDriveSync();
+      showToast('已删除该条闪念速记');
+    }
+
+    function clearArchivedFlashes() {
+      const archivedCount = (appState.flashes || []).filter(f => f.archived).length;
+      if (archivedCount === 0) {
+        showToast('当前没有已归档的闪念速记');
+        return;
+      }
+      (appState.flashes || []).forEach(f => {
+        if (f.archived) {
+          selectedFlashIds.delete(f.id);
+          if (!appState.deletedIds) appState.deletedIds = [];
+          if (!appState.deletedIds.includes(f.id)) appState.deletedIds.push(f.id);
+        }
+      });
+      appState.flashes = (appState.flashes || []).filter(f => !f.archived);
+      if (appState.currentFilter === 'flash-archived') {
+        activeFlashId = '';
+      }
+      saveState();
+      renderAll();
+      scheduleDebouncedDriveSync();
+      showToast(`🧹 已清空 ${archivedCount} 条已归档闪念速记`);
+    }
+
+    function jumpToArchivedFlashNote(noteId, ev) {
+      if (ev && ev.stopPropagation) ev.stopPropagation();
+      if (!noteId) return;
+      const target = appState.notes.find(n => n.id === noteId);
+      if (!target) {
+        showToast('关联的正式笔记不存在或已被删除');
+        return;
+      }
+      appState.currentFilter = 'all';
+      appState.currentCategoryFilter = null;
+      activeFlashId = '';
+      selectNote(noteId);
+      renderAll();
+      if (AppLayoutController.isMobileView()) {
+        AppLayoutController.setMobileScreen('detail');
+      }
+    }
+
+    function renderFlashNotebookList(listEl, mListEl, isArchivedSub) {
+      const q = (appState.searchQuery || '').trim().toLowerCase();
+      const filteredFlashes = (appState.flashes || [])
+        .filter(f => Boolean(f.archived) === isArchivedSub)
+        .filter(f => !q || (f.text || '').toLowerCase().includes(q) || (f.title || '').toLowerCase().includes(q))
+        .slice()
+        .reverse(); // Newest first in notebook list
+
+      if (!activeFlashId || !filteredFlashes.some(f => f.id === activeFlashId)) {
+        activeFlashId = filteredFlashes.length > 0 ? filteredFlashes[0].id : '';
+      }
+
+      // Sync sub-tab UI styles in Column 2 and Mobile
+      const btnPend = document.getElementById('col2-subtab-pending');
+      const btnArch = document.getElementById('col2-subtab-archived');
+      const mBtnPend = document.getElementById('m-subtab-pending');
+      const mBtnArch = document.getElementById('m-subtab-archived');
+      const inputRow = document.getElementById('flash-col2-input-row');
+      const pendAct = document.getElementById('flash-col2-pending-actions');
+      const archAct = document.getElementById('flash-col2-archived-actions');
+      const mQuickRow = document.getElementById('m-flash-quick-row');
+      const mBatchRow = document.getElementById('m-flash-batch-row');
+
+      if (btnPend && btnArch) {
+        btnPend.style.background = !isArchivedSub ? '#FFFFFF' : 'transparent';
+        btnPend.style.color = !isArchivedSub ? 'var(--text-primary)' : 'var(--text-muted)';
+        btnPend.style.fontWeight = !isArchivedSub ? '600' : '500';
+        btnPend.style.boxShadow = !isArchivedSub ? 'var(--shadow-xs)' : 'none';
+        btnArch.style.background = isArchivedSub ? '#FFFFFF' : 'transparent';
+        btnArch.style.color = isArchivedSub ? 'var(--text-primary)' : 'var(--text-muted)';
+        btnArch.style.fontWeight = isArchivedSub ? '600' : '500';
+        btnArch.style.boxShadow = isArchivedSub ? 'var(--shadow-xs)' : 'none';
+      }
+      if (mBtnPend && mBtnArch) {
+        mBtnPend.className = !isArchivedSub ? 'ln-btn-primary' : 'ln-btn-secondary';
+        mBtnArch.className = isArchivedSub ? 'ln-btn-primary' : 'ln-btn-secondary';
+      }
+      if (inputRow) inputRow.style.display = !isArchivedSub ? 'flex' : 'none';
+      if (pendAct) pendAct.style.display = !isArchivedSub ? 'flex' : 'none';
+      if (archAct) {
+        archAct.classList.toggle('hidden', !isArchivedSub);
+        archAct.style.display = isArchivedSub ? 'flex' : 'none';
+      }
+      if (mQuickRow) mQuickRow.style.display = !isArchivedSub ? 'flex' : 'none';
+      if (mBatchRow) mBatchRow.style.display = !isArchivedSub ? 'flex' : 'none';
+
+      if (filteredFlashes.length === 0) {
+        const emptyMsg = isArchivedSub
+          ? '暂无已归档的闪念速记'
+          : '暂无待整理的闪念速记，在上方输入框打字回车即可快速记录';
+        const emptyHtml = `
+          <div style="padding: 36px 16px; text-align: center; color: var(--text-muted); font-size: 12px; line-height: 1.6;">
+            <div>${emptyMsg}</div>
+          </div>
+        `;
+        if (listEl) listEl.innerHTML = emptyHtml;
+        if (mListEl) mListEl.innerHTML = emptyHtml;
+        return;
+      }
+
+      const buildFlashCard = (f, isMob) => {
+        const isSelectedCard = !isMob && f.id === activeFlashId;
+        const isChecked = selectedFlashIds.has(f.id);
+        const cardCls = isMob
+          ? 'ln-mobile-card'
+          : ('ln-note-card' + (isSelectedCard ? ' active' : ''));
+        const snippet = stripMarkdownForSnippet(f.text || '') || '空白闪念，点击在右侧补充内容...';
+        const titleStr = f.title || snippet.slice(0, 20) || '💬 闪念速记';
+        const actionBadge = f.archived
+          ? (f.archivedNoteId
+              ? `<button type="button" onclick="jumpToArchivedFlashNote(${escapeJsInlineArg(f.archivedNoteId)}, event)" style="border: none; background: rgba(16, 185, 129, 0.14); color: var(--status-sync-ok); font-size: 10.5px; font-weight: 600; padding: 2px 6px; border-radius: 4px; cursor: pointer;">🔗 已汇总至《${escapeHtml((f.archivedNoteTitle || '正式笔记').slice(0, 10))}》↗</button>`
+              : `<span style="font-size: 10.5px; color: var(--text-placeholder);">已归档</span>`)
+          : `<span style="font-size: 10.5px; color: var(--ai-primary);">待整理</span>`;
+
+        return `
+          <div onclick="selectFlashInNotebook(${escapeJsInlineArg(f.id)}, ${isMob ? 'true' : 'false'})" class="${cardCls}" style="display: flex; align-items: flex-start; gap: 8px;">
+            <input
+              type="checkbox"
+              ${isChecked ? 'checked' : ''}
+              onclick="toggleFlashSelection(${escapeJsInlineArg(f.id)}, event)"
+              title="勾选后可与同主题闪念一起 AI 汇总归档"
+              style="margin-top: 3px; width: 15px; height: 15px; accent-color: var(--ai-primary); cursor: pointer; flex-shrink: 0;"
+            />
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                <div class="ln-card-title" style="font-size: 13px;">${escapeHtml(titleStr)}</div>
+                <span style="font-size: 10.5px; color: var(--text-placeholder); flex-shrink: 0;">${formatFlashTime(f.createdAt)}</span>
+              </div>
+              <div class="ln-card-snippet" style="font-size: 12px; color: var(--text-secondary);">${escapeHtml(snippet)}</div>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 2px;">
+                <span class="ln-neutral-pill" style="font-size: 10.5px; padding: 1px 6px;">${escapeHtml(f.source || '💬 随手速记')}</span>
+                ${actionBadge}
+              </div>
+            </div>
+          </div>
+        `;
+      };
+
+      if (listEl) listEl.innerHTML = filteredFlashes.map(f => buildFlashCard(f, false)).join('');
+      if (mListEl) mListEl.innerHTML = filteredFlashes.map(f => buildFlashCard(f, true)).join('');
+    }
+
+    function renderFlashBubbles() {
+      if (!Array.isArray(appState.flashes)) appState.flashes = [];
+      const validSet = new Set(appState.flashes.map(f => f.id));
+      Array.from(selectedFlashIds).forEach(id => {
+        if (!validSet.has(id)) selectedFlashIds.delete(id);
+      });
+
+      const unarchivedCount = appState.flashes.filter(f => !f.archived).length;
+      const archivedCount = appState.flashes.filter(f => f.archived).length;
+      const totalCount = appState.flashes.length;
+      const selCount = selectedFlashIds.size;
+
+      ['badge-flash-pending', 'm-badge-flash-pending', 'count-flash-pending', 'count-flash-sub-pending', 'col2-count-pending'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = unarchivedCount;
+      });
+      ['count-flash-sub-archived', 'col2-count-archived'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = archivedCount;
+      });
+      ['flash-total-count-title', 'm-flash-total-count'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = totalCount;
+      });
+      ['flash-selected-count', 'm-flash-selected-count', 'col2-selected-count', 'm-col2-selected-count'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = selCount;
+      });
+    }
+
+    async function synthesizeSelectedFlashesWithAi(useAi = true) {
+      let chosenFlashes = (appState.flashes || []).filter(f => selectedFlashIds.has(f.id));
+      if (chosenFlashes.length === 0) {
+        const unarchived = (appState.flashes || []).filter(f => !f.archived);
+        if (unarchived.length === 0) {
+          showToast('⚠️ 当前没有待整理的闪念速记');
+          return;
+        }
+        unarchived.forEach(f => selectedFlashIds.add(f.id));
+        chosenFlashes = unarchived;
+        renderFlashBubbles();
+        renderNoteList();
+      }
+
+      const apiKey = (appState.settings.geminiApiKey || '').trim();
+      const nowContext = getCurrentDateContextString();
+      const combinedRaw = chosenFlashes
+        .map((f, idx) => `【闪念 ${idx + 1} (${formatFlashTime(f.createdAt)})】\n${f.text}`)
+        .join("\n\n");
+
+      let resultData = null;
+
+      if (useAi && apiKey) {
+        const banner = document.getElementById('ai-action-banner');
+        const bannerText = document.getElementById('ai-banner-text');
+        banner.classList.remove('hidden');
+        banner.classList.add('flex');
+        bannerText.textContent = `🪄 正在调用 ${appState.defaultModel} 将选中的 ${chosenFlashes.length} 条闪念速记汇总为正式笔记并归档...`;
+
+        try {
+          const categoryListStr = Object.keys(getAllCategoriesMeta()).join(' | ');
+          const sysPrompt = `当前系统准确时间：${nowContext}。
+你是专业的个人知识管理与商务情报主编。用户从「闪念速记本」中勾选了 ${chosenFlashes.length} 条围绕相似主题的零碎想法。
+请将这 ${chosenFlashes.length} 条零散速记深度整合、去重串联，撰写成一篇逻辑严密、层次清晰的正式 Markdown 笔记（放入 rawTranscription 字段，包含清晰的二级/三级标题、核心要点列表，以及 \`## ✅ 待办跟进\` 使用 \`- [ ] \` 列出所有行动项），并自动判断最匹配的正式分类（可选分类：${categoryListStr}）、生成精炼摘要（每行以 • 开头）、打上标签，并提取所有待办事项（将“周四下午/下周二/月底前”等相对日期基于当前系统时间换算为 YYYY-MM-DD 或 YYYY-MM-DD HH:mm 格式）。`;
+
+          resultData = await callGeminiInteractionsApi({
+            model: appState.defaultModel,
+            systemInstruction: sysPrompt,
+            inputParts: [{ type: 'text', text: `以下是用户勾选的 ${chosenFlashes.length} 条闪念速记：\n\n${combinedRaw}` }],
+            schema: buildStructuredNoteSchema(true),
+            apiKey
+          });
+        } catch (err) {
+          hideAiBanner();
+          showToast(`❌ AI 汇总闪念失败：${err.message || '请检查网络或 API Key'}`);
+          return;
+        }
+        hideAiBanner();
+      } else {
+        if (useAi && !apiKey) {
+          showToast('未配置 Gemini API Key，已为您执行本地结构化合并与待办提取');
+        }
+        const localParsed = classifyRawTextLocally(chosenFlashes.map(f => f.text).join("\n"));
+        const mdBody = [
+          `## 💡 闪念速记汇总 (${chosenFlashes.length} 条)`,
+          ...chosenFlashes.map(f => `- **${formatFlashTime(f.createdAt)}**：${f.text}`),
+          ...(localParsed.todos && localParsed.todos.length > 0
+            ? ["\n## ✅ 识别待办事项", ...localParsed.todos.map(t => `- [ ] ${t.text}`)]
+            : [])
+        ].join("\n");
+        resultData = {
+          ...localParsed,
+          title: `💬 闪念汇总：${(chosenFlashes[0].title || chosenFlashes[0].text || '').slice(0, 18)}`,
+          rawTranscription: mdBody
+        };
+      }
+
+      const validCats = getAllCategoriesMeta();
+      const chosenCat = (resultData && validCats[resultData.category]) ? resultData.category : '灵感随笔类';
+      const nowTs = Date.now();
+      const newNote = {
+        id: 'note-' + nowTs,
+        title: (resultData && resultData.title) ? resultData.title : `💬 闪念汇总 (${chosenFlashes.length}条)`,
+        category: chosenCat,
+        summary: (resultData && resultData.summary) ? resultData.summary : '',
+        content: (resultData && resultData.rawTranscription) ? resultData.rawTranscription : combinedRaw,
+        tags: Array.isArray(resultData && resultData.tags) && resultData.tags.length > 0 ? resultData.tags : ['闪念汇总'],
+        starred: chosenCat === '客户情报类',
+        trashed: false,
+        localRev: 1,
+        driveRev: 0,
+        lastSyncedAt: 0,
+        baseContent: '',
+        isDirty: true,
+        lastModifiedBy: '🪄 闪念AI汇总',
+        updatedAt: nowTs
+      };
+
+      appState.notes.unshift(newNote);
+      appState.currentNoteId = newNote.id;
+      const addedTodosCount = pushExtractedTodosToNote((resultData && resultData.todos) || [], newNote);
+      syncNoteMarkdownTasksToTodos(newNote);
+
+      // Automatically move the N source flashes into 📦 已归档速记 with jump link to the new formal note!
+      chosenFlashes.forEach(f => {
+        f.archived = true;
+        f.archivedNoteId = newNote.id;
+        f.archivedNoteTitle = newNote.title;
+      });
+      selectedFlashIds.clear();
+      activeFlashId = '';
+      appState.currentFilter = 'all';
+      appState.currentCategoryFilter = chosenCat;
+
+      saveState();
+      scheduleLocalHardDriveWrite(newNote);
+      setEditorMode('preview');
+      mobileEditorMode = 'preview';
+      applyMobileEditorModeUI();
+      switchMainView('notes');
+      if (AppLayoutController.isMobileView()) {
+        AppLayoutController.setMobileScreen('detail');
+      }
+      renderAll();
+      scheduleDebouncedDriveSync();
+      showToast(`🪄 已汇总归入【${chosenCat}】《${newNote.title}》，原 ${chosenFlashes.length} 条速记已自动移入「已归档」！`);
+    }
+
+    // -------------------------------------------------------------------------
+    // DIRECT BROWSER MICROPHONE RECORDING (#2)
+    // -------------------------------------------------------------------------
+    function stopDirectMicStreamOnly() {
+      if (liveMicTimerInterval) {
+        clearInterval(liveMicTimerInterval);
+        liveMicTimerInterval = null;
+      }
+      if (liveMediaRecorder && liveMediaRecorder.state !== 'inactive') {
+        try { liveMediaRecorder.stop(); } catch (e) {}
+      }
+      if (liveMicStream) {
+        try { liveMicStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+        liveMicStream = null;
+      }
+      const btnLbl = document.getElementById('live-mic-btn-label');
+      const statusBar = document.getElementById('live-mic-status-bar');
+      if (btnLbl) btnLbl.textContent = '🔴 直接开始麦克风录音';
+      if (statusBar) statusBar.classList.add('hidden');
+    }
+
+    async function toggleDirectMicRecording() {
+      const btnLbl = document.getElementById('live-mic-btn-label');
+      const statusBar = document.getElementById('live-mic-status-bar');
+      const timerText = document.getElementById('live-mic-timer-text');
+
+      // If currently recording -> stop and package into pendingAudioFile
+      if (liveMediaRecorder && liveMediaRecorder.state === 'recording') {
+        liveMediaRecorder.stop();
+        return;
+      }
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showToast('⚠️ 当前浏览器环境不支持直接调用麦克风，请使用右侧按钮选择本地音频文件');
+        return;
+      }
+
+      try {
+        revokePendingAudioPreview();
+        liveMicStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        liveMicChunks = [];
+        const preferredMime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+          ? 'audio/webm;codecs=opus'
+          : (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '');
+        liveMediaRecorder = preferredMime
+          ? new MediaRecorder(liveMicStream, { mimeType: preferredMime })
+          : new MediaRecorder(liveMicStream);
+
+        liveMediaRecorder.ondataavailable = (ev) => {
+          if (ev.data && ev.data.size > 0) liveMicChunks.push(ev.data);
+        };
+
+        liveMediaRecorder.onstop = () => {
+          if (liveMicTimerInterval) {
+            clearInterval(liveMicTimerInterval);
+            liveMicTimerInterval = null;
+          }
+          if (liveMicStream) {
+            try { liveMicStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+            liveMicStream = null;
+          }
+          if (btnLbl) btnLbl.textContent = '🔴 重新开始麦克风录音';
+          if (statusBar) statusBar.classList.add('hidden');
+
+          if (liveMicChunks.length === 0) return;
+          const rawMime = (liveMediaRecorder && liveMediaRecorder.mimeType) || 'audio/webm';
+          const cleanMime = rawMime.split(';')[0] || 'audio/webm';
+          const ext = cleanMime.includes('mp4') ? 'm4a' : (cleanMime.includes('ogg') ? 'ogg' : 'webm');
+          const blob = new Blob(liveMicChunks, { type: cleanMime });
+          const nowStr = getCurrentDateContextString().replace(/[:\s]/g, '-');
+          const fileName = `现场录音_${nowStr}.${ext}`;
+          pendingAudioFile = new File([blob], fileName, { type: cleanMime });
+
+          const sizeKB = Math.max(1, Math.round(pendingAudioFile.size / 1024));
+          const infoEl = document.getElementById('selected-audio-info');
+          if (infoEl) {
+            infoEl.textContent = `✅ 麦克风录音已完成：${fileName}（${sizeKB} KB · 时长 ${liveMicSeconds} 秒）`;
+          }
+          const player = document.getElementById('audio-preview-player');
+          const wrap = document.getElementById('audio-preview-wrap');
+          if (player && wrap) {
+            pendingAudioObjectUrl = URL.createObjectURL(pendingAudioFile);
+            player.src = pendingAudioObjectUrl;
+            wrap.classList.remove('hidden');
+          }
+          showToast('🎙️ 录音已完成！点击右下角「开始转写并提取待办」即可生成纪要');
+        };
+
+        liveMediaRecorder.start(250);
+        liveMicSeconds = 0;
+        if (btnLbl) btnLbl.textContent = '⏹️ 停止录音并生成音频';
+        if (statusBar) statusBar.classList.remove('hidden');
+        if (timerText) timerText.textContent = '正在录音 00:00（再次点击上方按钮完成录音）';
+
+        liveMicTimerInterval = setInterval(() => {
+          liveMicSeconds++;
+          const mm = String(Math.floor(liveMicSeconds / 60)).padStart(2, '0');
+          const ss = String(liveMicSeconds % 60).padStart(2, '0');
+          if (timerText) timerText.textContent = `正在录音 ${mm}:${ss}（再次点击上方按钮完成录音）`;
+        }, 1000);
+      } catch (err) {
+        showToast('⚠️ 无法访问麦克风（请检查浏览器麦克风权限，或直接选择本地录音文件）');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // GLOBAL CTRL+V CLIPBOARD IMAGE PASTE & WINDOW DRAG-AND-DROP (#1)
+    // -------------------------------------------------------------------------
+    async function processQuickPastedOrDroppedImage(imageFile, sourceActionLabel = '截图粘贴') {
+      if (!imageFile) return;
+      const apiKey = (appState.settings.geminiApiKey || '').trim();
+      if (!apiKey) {
+        // Fallback: open handwriting modal with image preloaded and guide user
+        openHandwritingSnapModal();
+        pendingHandwritingFile = imageFile;
+        const nameEl = document.getElementById('selected-handwriting-filename');
+        if (nameEl) nameEl.textContent = `已载入${sourceActionLabel}图片：${imageFile.name || 'clipboard.png'}（请先配置 Gemini API Key 后识别）`;
+        showToast('💡 已捕获图片！请先在【备份与设置】配置 Gemini API Key 以启用自动 OCR 识字');
+        return;
+      }
+
+      const banner = document.getElementById('ai-action-banner');
+      const bannerText = document.getElementById('ai-banner-text');
+      banner.classList.remove('hidden');
+      banner.classList.add('flex');
+      bannerText.textContent = `📸 检测到${sourceActionLabel}，正在压缩并通过 ${appState.defaultModel} 识别图中文字...`;
+
+      try {
+        const compressed = await compressImageFileToBase64(imageFile, 1600, 0.82);
+        const ocrMarkdown = await callGeminiInteractionsApi({
+          model: appState.defaultModel,
+          systemInstruction: '你是精准的图文 OCR 与 Markdown 排版助手。请完整识别图片中的所有文字、表格或手写批注，直接输出排版清晰的 Markdown 正文（若图中有待办事项请用 `- [ ] ` 语法表示），不要输出多余的寒暄解释。',
+          inputParts: [
+            { type: 'image', data: compressed.base64, mime_type: compressed.mimeType },
+            { type: 'text', text: '请识别并输出图中的全部文字与结构化要点：' }
+          ],
+          schema: null,
+          apiKey
+        });
+
+        hideAiBanner();
+        const cleanMd = String(ocrMarkdown || '').trim();
+        if (!cleanMd) {
+          showToast('⚠️ 未从图片中识别到有效文字');
+          return;
+        }
+
+        // Check if user is currently inside the 💬 闪念速记本 notebook
+        if (isFlashFilterActive()) {
+          appState.currentFilter = 'flash-pending';
+          const item = addFlashBubble(cleanMd, `📸 ${sourceActionLabel}识图`, false);
+          if (item) selectFlashInNotebook(item.id, false);
+          showToast(`✅ 已将${sourceActionLabel}识别结果存入「闪念速记本 ➔ 待整理速记」！`);
+          return;
+        }
+
+        const curNote = appState.notes.find(n => n.id === appState.currentNoteId && !n.trashed);
+        if (curNote) {
+          const timeTag = formatFlashTime(Date.now());
+          curNote.content = (curNote.content ? curNote.content.trimEnd() + "\n\n" : '') +
+            `### 📸 ${sourceActionLabel}识别 (${timeTag})
+${cleanMd}`;
+          if (!curNote.title) {
+            curNote.title = cleanMd.replace(/[#*`>-]/g, '').trim().slice(0, 24) || `📸 ${sourceActionLabel}笔记`;
+          }
+          curNote.updatedAt = Date.now();
+          curNote.localRev = (curNote.localRev || 1) + 1;
+          curNote.isDirty = true;
+          syncNoteMarkdownTasksToTodos(curNote);
+          saveState();
+          scheduleLocalHardDriveWrite(curNote);
+          renderAll();
+          scheduleDebouncedDriveSync();
+          showToast(`✅ 已将${sourceActionLabel}文字追加至当前笔记！`);
+        } else {
+          createNewNote();
+          const created = appState.notes.find(n => n.id === appState.currentNoteId);
+          if (created) {
+            created.title = cleanMd.replace(/[#*`>-]/g, '').trim().slice(0, 24) || `📸 ${sourceActionLabel}笔记`;
+            created.content = cleanMd;
+            syncNoteMarkdownTasksToTodos(created);
+            saveState();
+            renderAll();
+            scheduleDebouncedDriveSync();
+          }
+        }
+      } catch (err) {
+        hideAiBanner();
+        showToast(`❌ ${sourceActionLabel}识别失败：${err.message || '请检查网络或 API Key'}`);
+      }
+    }
+
+    function setupZeroFrictionGlobalListeners() {
+      // 1. Global Ctrl+V Image Paste Listener
+      document.addEventListener('paste', (e) => {
+        const cd = e.clipboardData;
+        if (!cd || !cd.items) return;
+        for (let i = 0; i < cd.items.length; i++) {
+          const item = cd.items[i];
+          if (item.kind === 'file' && item.type && item.type.startsWith('image/')) {
+            const file = item.getAsFile();
+            if (file) {
+              e.preventDefault();
+              processQuickPastedOrDroppedImage(file, 'Ctrl+V 粘贴截图');
+              return;
+            }
+          }
+        }
+      });
+
+      // 2. Global Window Drag-and-Drop Image / Audio Listener
+      window.addEventListener('dragover', (e) => {
+        if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) {
+          e.preventDefault();
+        }
+      });
+
+      window.addEventListener('drop', (e) => {
+        if (!e.dataTransfer || !e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+        const nameLower = (file.name || '').toLowerCase();
+        const isImg = (file.type && file.type.startsWith('image/')) || /\.(png|jpe?g|webp|gif|bmp|heic)$/.test(nameLower);
+        const isAud = (file.type && file.type.startsWith('audio/')) || /\.(mp3|m4a|wav|aac|ogg|flac|opus|webm|aiff)$/.test(nameLower);
+
+        if (isImg) {
+          e.preventDefault();
+          processQuickPastedOrDroppedImage(file, '拖拽图片');
+        } else if (isAud) {
+          e.preventDefault();
+          openAudioUploadModal();
+          pendingAudioFile = file;
+          const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+          const infoEl = document.getElementById('selected-audio-info');
+          if (infoEl) infoEl.textContent = `✅ 已拖入音频：${file.name}（${sizeMB} MB）`;
+          const player = document.getElementById('audio-preview-player');
+          const wrap = document.getElementById('audio-preview-wrap');
+          if (player && wrap) {
+            pendingAudioObjectUrl = URL.createObjectURL(file);
+            player.src = pendingAudioObjectUrl;
+            wrap.classList.remove('hidden');
+          }
+          showToast('🎙️ 已载入拖放的音频文件，点击「开始转写并提取待办」即可处理');
+        }
+      });
+    }
+
     window.onload = function() {
       loadState();
       setEditorMode(editorMode);
       applyMobileEditorModeUI();
       AppLayoutController.init();
+      setupZeroFrictionGlobalListeners();
       setupBackgroundPollTimer();
       if ((appState.settings.gasWebAppUrl || '').trim() || (appState.settings.driveAccessToken || '').trim()) {
         executeGoogleDriveSync('启动自动拉取同步');
